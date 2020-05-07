@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Theme, createStyles, makeStyles, ThemeProvider } from '@material-ui/core/styles';
-import { CssBaseline, Popover } from '@material-ui/core';
+import { CssBaseline } from '@material-ui/core';
 import EmptyBlock from './blocks/EmptyBlock';
 import theme from './theme';
 import { GraphEngine } from '../engine/GraphEngine';

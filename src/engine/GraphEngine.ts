@@ -11,9 +11,6 @@ export class GraphEngine {
 
     private lastIndex: number = 0;
 
-    constructor() {
-    }
-
     private updateState(updateor: ()=>void) {
         updateor();
         this.stateChangeEmitter.emit('stateChanged', this.serialize());
