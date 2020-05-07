@@ -5,10 +5,9 @@ import {v4 as uuid} from 'uuid';
 
 export class GraphEngine {
 
-    // private spec: GraphSpec;
     private stateChangeEmitter = new EventEmitter();
 
-    private nodes: Block[] = [];
+    private blocks: Block[] = [];
 
     private lastIndex: number = 0;
 
@@ -34,29 +33,29 @@ export class GraphEngine {
 
     private serialize(): GraphSpec {
         return {
-            nodes: Object.values(this.nodes).map(n => n.serialize())
+            blocks: Object.values(this.blocks).map(n => n.serialize())
         }
     }
 
-    createNode(type: string, x: number, y: number) {
+    createBlock(type: string, x: number, y: number) {
         this.updateState(() => {
             const newId = uuid();
-            const name = `Node ${++this.lastIndex}`;
-            this.nodes.push(new Block(newId, name, type, x, y));
+            const name = `Block ${++this.lastIndex}`;
+            this.blocks.push(new Block(newId, name, type, x, y));
             console.log(`Creating ${type} at (${x},${y})`);
         });
         
     }
 
-    moveNode(id: string, x: number, y: number) {
+    moveBlock(id: string, x: number, y: number) {
         this.updateState(() => {
-
-            const existingBlock = this.nodes.find(n => n.id === id);
+            const existingBlock = this.blocks.find(n => n.id === id);
             if (existingBlock) {
                 existingBlock.move(x, y);
-                const newBlocks = this.nodes.filter(n => n.id !== id);
+                // Move to the end of array to stack on top of other blocks in UI
+                const newBlocks = this.blocks.filter(n => n.id !== id);
                 newBlocks.push(existingBlock);
-                this.nodes = newBlocks;
+                this.blocks = newBlocks;
             }
 
         });

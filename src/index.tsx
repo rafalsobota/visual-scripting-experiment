@@ -1,13 +1,11 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import './index.css';
-import App from './App';
 import * as serviceWorker from './serviceWorker';
-import GraphGUI from './GraphGUI';
+import GraphGUI from './gui/GraphGUI';
 
 ReactDOM.render(
   <React.StrictMode>
-    {/* <App /> */}
     <GraphGUI />
   </React.StrictMode>,
   document.getElementById('root')
