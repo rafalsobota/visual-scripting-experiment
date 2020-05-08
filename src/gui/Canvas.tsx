@@ -21,14 +21,23 @@ interface Props {
 function Canvas(props: Props) {
     const classes = useStyles(props);
     const engine = useContext(EngineContext);
-    const [composerState, setComposerState] = useState({ open: false, x: 0, y: 0 });
+    const [contextMenuState, setContextMenuState] = useState({ open: false, x: 0, y: 0 });
 
     return (
         <div
             className={classes.root}
             onContextMenu={(e) => {
-                setComposerState({ open: true, x: e.pageX, y: e.pageY });
+                if (e.shiftKey) {
+                    return;
+                }
+                if (contextMenuState.open) {
+                    setContextMenuState({ ...contextMenuState, open: false });
+                } else {
+                    setContextMenuState({ open: true, x: e.pageX, y: e.pageY });
+                }
+                
                 e.preventDefault();
+                e.stopPropagation();
             }}
             onDrop={(e) => {
                 e.preventDefault();
@@ -50,15 +59,15 @@ function Canvas(props: Props) {
             <BlockComposer
                 blocksPrefabs={engine.blocksPrefabs}
                 onClick={(blockTemplate) => {
-                    engine.createBlock(blockTemplate.type, composerState.x, composerState.y);
-                    setComposerState({ ...composerState, open: false });
+                    engine.createBlock(blockTemplate.type, contextMenuState.x, contextMenuState.y);
+                    setContextMenuState({ ...contextMenuState, open: false });
                 }}
                 onClose={() => {
-                    setComposerState({ ...composerState, open: false });
+                    setContextMenuState({ ...contextMenuState, open: false });
                 }}
-                open={composerState.open}
-                x={composerState.x}
-                y={composerState.y}
+                open={contextMenuState.open}
+                x={contextMenuState.x}
+                y={contextMenuState.y}
             />
             {props.children}
         </div>

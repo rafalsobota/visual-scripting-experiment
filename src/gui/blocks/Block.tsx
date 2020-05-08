@@ -45,7 +45,15 @@ export default function Block(props: Props) {
             target.style.opacity = "1";
         }}
         onContextMenu={(e) => {
-            setContextMenuState({ open: true, x: e.pageX, y: e.pageY });
+            if (e.shiftKey) {
+                return;
+            }
+            if (contextMenuState.open) {
+                setContextMenuState({ ...contextMenuState, open: false });
+            } else {
+                setContextMenuState({ open: true, x: e.pageX, y: e.pageY });
+            }
+            
             e.preventDefault();
             e.stopPropagation();
         }}
