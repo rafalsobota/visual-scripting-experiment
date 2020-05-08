@@ -12,8 +12,7 @@ export default function BlockComposer(props: {
   open: boolean,
   onClose: () => void,
   x: number,
-  y: number,
-  engine: GraphEngine,
+  y: number
 }) {
   return (
     <Popover
