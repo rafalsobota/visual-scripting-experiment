@@ -32,16 +32,16 @@ export default class GraphEngine {
         return this.getPrefab(block.type)?.render(block);
     }
 
-    private updateState(updateor: ()=>void) {
-        updateor();
+    private updateState(mutator: ()=>void) {
+        mutator();
         this.stateChangeEmitter.emit('stateChanged', this.serialize());
     }
 
-    subscribe(f: (state: GraphSpec) => void) {
+    public subscribe(f: (state: GraphSpec) => void) {
         this.stateChangeEmitter.addListener('stateChanged', f);
     }
 
-    unsubscribe(f: (state: GraphSpec) => void) {
+    public unsubscribe(f: (state: GraphSpec) => void) {
         this.stateChangeEmitter.removeListener('stateChanged', f);
     }
 
@@ -55,7 +55,7 @@ export default class GraphEngine {
         }
     }
 
-    registerPrefab(...prefabs: BlockPrefab[]) {
+    public registerPrefab(...prefabs: BlockPrefab[]) {
         prefabs.forEach((prefab) =>{
             if(this._blocksPrefabs.find((p) => p.type === prefab.type)) {
                 console.warn(`Prefab of type ${prefab.type} is already registered`);
@@ -93,7 +93,7 @@ export default class GraphEngine {
         return `${baseName} 2`;
     }
 
-    createBlock(type: string, x: number, y: number) {
+    public createBlock(type: string, x: number, y: number) {
 
         const prefab = this._blocksPrefabs.find(p => p.type === type);
         if (prefab) {
@@ -109,7 +109,13 @@ export default class GraphEngine {
         }
     }
 
-    moveBlock(id: string, x: number, y: number) {
+    public deleteBlock(id: string) {
+        this.updateState(() => {
+            this.blocks = this.blocks.filter(b => b.id !== id);
+        });
+    }
+
+    public moveBlock(id: string, x: number, y: number) {
         this.updateState(() => {
             const existingBlock = this.blocks.find(n => n.id === id);
             if (existingBlock) {

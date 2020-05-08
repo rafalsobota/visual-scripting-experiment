@@ -1,12 +1,17 @@
-import React, { useContext } from 'react';
+import React, { useContext, useState } from 'react';
 import { makeStyles, Theme, createStyles } from '@material-ui/core/styles';
 import GraphContext from '../GraphContext';
 import { getBlock } from '../../engine/selectors';
+import EngineContext from '../EngineContext';
+import { Popover, List, ListItem, ListItemText } from '@material-ui/core';
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
     root: {
       position: 'absolute'
+    },
+    dangerousAction: {
+        color: theme.palette.error.main,
     }
   }),
 );
@@ -16,6 +21,8 @@ interface Props {id: string, children: any}
 export default function Block(props: Props) {
   const classes = useStyles(props);
   const graph = useContext(GraphContext);
+  const engine = useContext(EngineContext);
+  const [contextMenuState, setContextMenuState] = useState({ open: false, x: 0, y: 0 });
 
   const x = getBlock(graph, props.id)!.x;
   const y = getBlock(graph, props.id)!.y;
@@ -37,8 +44,38 @@ export default function Block(props: Props) {
             const target: any = e.target;
             target.style.opacity = "1";
         }}
+        onContextMenu={(e) => {
+            setContextMenuState({ open: true, x: e.pageX, y: e.pageY });
+            e.preventDefault();
+            e.stopPropagation();
+        }}
         >
           {props.children}
+          <Popover
+            anchorReference="anchorPosition"
+            anchorPosition={{ top: contextMenuState.y, left: contextMenuState.x }}
+            anchorOrigin={{
+                vertical: 'top',
+                horizontal: 'left',
+            }}
+            transformOrigin={{
+                vertical: 'top',
+                horizontal: 'left',
+            }}
+            open={contextMenuState.open}
+            onClose={() => {
+                setContextMenuState({...contextMenuState, open: false})
+            }}
+            >
+            <List component="nav">
+                <ListItem button onClick={() => {
+                    engine.deleteBlock(props.id);
+                    setContextMenuState({...contextMenuState, open: false});
+                }}>
+                <ListItemText primary="Delete" className={classes.dangerousAction} />
+                </ListItem>
+            </List>
+            </Popover>
       </div>
   );
 }
