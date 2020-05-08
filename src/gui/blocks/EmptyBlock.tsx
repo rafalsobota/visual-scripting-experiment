@@ -18,7 +18,7 @@ const useStyles = makeStyles((theme: Theme) =>
   }),
 );
 
-export default function EmptyBlock(props: {id: string}) {
+function EmptyBlock(props: {id: string}) {
   const classes = useStyles();
   const graph = useContext(GraphContext);
   const name = getBlock(graph, props.id)!.name
@@ -26,8 +26,10 @@ export default function EmptyBlock(props: {id: string}) {
   return (
     <Block id={props.id}>
       <Paper className={classes.root}>
-        <Typography className={classes.title}>{name}</Typography>
+        <Typography variant="subtitle2" className={classes.title}>{name}</Typography>
       </Paper>
     </Block>
   );
 }
+
+export default EmptyBlock;

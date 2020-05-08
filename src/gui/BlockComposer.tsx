@@ -4,11 +4,11 @@ import ListItem from '@material-ui/core/ListItem';
 import ListItemText from '@material-ui/core/ListItemText';
 import { Popover } from '@material-ui/core';
 import { GraphEngine } from '../engine/GraphEngine';
-import BlockTemplate from './BlockTemplate';
+import BlockPrefab from '../engine/BlockPrefab';
 
 export default function BlockComposer(props: {
-  blocksTemplates: BlockTemplate[],
-  onClick: (blockTemplate: BlockTemplate) => void,
+  blocksPrefabs: BlockPrefab[],
+  onClick: (blockTemplate: BlockPrefab) => void,
   open: boolean,
   onClose: () => void,
   x: number,
@@ -30,7 +30,7 @@ export default function BlockComposer(props: {
       onClose={props.onClose}
     >
       <List component="nav">
-        {props.blocksTemplates.map((block) =>
+        {props.blocksPrefabs.map((block) =>
           <ListItem button key={block.type}>
             <ListItemText primary={block.name} onClick={() => props.onClick(block)} />
           </ListItem>

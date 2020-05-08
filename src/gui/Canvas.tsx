@@ -15,10 +15,6 @@ const useStyles = makeStyles((theme: Theme) =>
     }),
 );
 
-const blocksTemplates: BlockTemplate[] = [
-    { name: "Empty Block", type: "empty" },
-]
-
 interface Props {
     children: any
 }
@@ -53,7 +49,7 @@ function Canvas(props: Props) {
             }}
         >
             <BlockComposer
-                blocksTemplates={blocksTemplates}
+                blocksPrefabs={engine.blocksPrefabs}
                 onClick={(blockTemplate) => {
                     engine.createBlock(blockTemplate.type, composerState.x, composerState.y);
                     setComposerState({ ...composerState, open: false });

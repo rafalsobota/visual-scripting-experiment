@@ -6,7 +6,7 @@ export interface GraphSpec {
 export interface BlockSpec {
     id: string // GUID żeby dało się merdżować zmiany w gicie
     name: string
-    // type: string
+    type: string
     // inputPorts: PortSpec[]
     // outputPorts: PortSpec[]
     // settings: any // place for block extensions

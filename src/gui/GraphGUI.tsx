@@ -8,6 +8,7 @@ import EngineContext from './EngineContext';
 import globalEngineInstance from './globalEngineInstance';
 import GraphContext from './GraphContext';
 import Canvas from './Canvas';
+import Block from './blocks/Block';
 
 const engine = globalEngineInstance;
 
@@ -32,7 +33,8 @@ function GraphGUI() {
             <meta name="viewport" content="minimum-scale=1, initial-scale=1, width=device-width" />
             <Canvas>
                 {graphState.blocks.map((block) =>
-                    <EmptyBlock id={block.id} />
+                    // <EmptyBlock id={block.id} />
+                    React.createElement(EmptyBlock, {id: block.id})
                 )}
             </Canvas>
         </ThemeProvider>

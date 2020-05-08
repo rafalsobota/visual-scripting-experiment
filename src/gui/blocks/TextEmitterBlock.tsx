@@ -1,16 +1,16 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useContext } from 'react';
 import { makeStyles, Theme, createStyles } from '@material-ui/core/styles';
 import Paper from '@material-ui/core/Paper';
 import { Typography } from '@material-ui/core';
+import Block from './Block';
+import GraphContext from '../GraphContext';
+import { getBlock } from '../../engine/selectors';
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
     root: {
-      width: 100,
-      height: 100,
-      position: 'absolute',
-      left: (props: Props) => props.x,
-      top: (props: Props) => props.y,
+      width: 150,
+      height: 150,
     },
     title: {
         padding: 4,
@@ -19,20 +19,22 @@ const useStyles = makeStyles((theme: Theme) =>
   }),
 );
 
-interface Props {name: string, x: number, y: number}
+interface Props {id: string}
 
 export default function TextEmitterBlock(props: Props) {
   const classes = useStyles(props);
+  const graph = useContext(GraphContext);
+  const name = getBlock(graph, props.id)!.name
 
   useEffect(() => {
     // componentDidMount
   });
 
   return (
-    <Paper className={classes.root} draggable>
-        <div className={classes.title}>{props.name}</div>
-
-
-    </Paper>
+      <Block id={props.id} >
+        <Paper className={classes.root} draggable>
+            <div className={classes.title}>{name}</div>
+        </Paper>
+    </Block>
   );
 }
