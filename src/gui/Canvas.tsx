@@ -30,46 +30,56 @@ function Canvas(props: Props) {
                 if (e.shiftKey) {
                     return;
                 }
-                if (contextMenuState.open) {
-                    setContextMenuState({ ...contextMenuState, open: false });
-                } else {
-                    setContextMenuState({ open: true, x: e.pageX, y: e.pageY });
-                }
-                
                 e.preventDefault();
                 e.stopPropagation();
             }}
-            onDrop={(e) => {
-                e.preventDefault();
-                const textData = e.dataTransfer.getData("Text");
-                try {
-                    const { blockId, shiftX, shiftY } = JSON.parse(textData);
-                    if (blockId && shiftX && shiftY) {
-                        engine.moveBlock(blockId, e.pageX - shiftX, e.pageY - shiftY);
-                    }
-                } catch (e) {
-                    console.warn("dragging failed");
-                    console.warn(e);
-                }
-            }}
-            onDragOver={(e) => {
-                e.preventDefault()
-            }}
         >
-            <BlockComposer
-                blocksPrefabs={engine.blocksPrefabs}
-                onClick={(blockTemplate) => {
-                    engine.createBlock(blockTemplate.type, contextMenuState.x, contextMenuState.y);
-                    setContextMenuState({ ...contextMenuState, open: false });
+            <div
+                className={classes.root}
+                onContextMenu={(e) => {
+                    if (e.shiftKey) {
+                        return;
+                    }
+                    if (contextMenuState.open) {
+                        setContextMenuState({ open: false, x: e.pageX, y: e.pageY });
+                    } else {
+                        setContextMenuState({ open: true, x: e.pageX, y: e.pageY });
+                    }
+                    e.preventDefault();
+                    e.stopPropagation();
                 }}
-                onClose={() => {
-                    setContextMenuState({ ...contextMenuState, open: false });
+                onDrop={(e) => {
+                    e.preventDefault();
+                    const textData = e.dataTransfer.getData("Text");
+                    try {
+                        const { blockId, shiftX, shiftY } = JSON.parse(textData);
+                        if (blockId && shiftX && shiftY) {
+                            engine.moveBlock(blockId, e.pageX - shiftX, e.pageY - shiftY);
+                        }
+                    } catch (e) {
+                        console.warn("dragging failed");
+                        console.warn(e);
+                    }
                 }}
-                open={contextMenuState.open}
-                x={contextMenuState.x}
-                y={contextMenuState.y}
-            />
-            {props.children}
+                onDragOver={(e) => {
+                    e.preventDefault()
+                }}
+            >
+                <BlockComposer
+                    blocksPrefabs={engine.blocksPrefabs}
+                    onClick={(blockTemplate) => {
+                        engine.createBlock(blockTemplate.type, contextMenuState.x, contextMenuState.y);
+                        setContextMenuState({ ...contextMenuState, open: false });
+                    }}
+                    onClose={() => {
+                        setContextMenuState({ ...contextMenuState, open: false });
+                    }}
+                    open={contextMenuState.open}
+                    x={contextMenuState.x}
+                    y={contextMenuState.y}
+                />
+                {props.children}
+            </div>
         </div>
     );
 }

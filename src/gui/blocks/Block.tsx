@@ -49,11 +49,10 @@ export default function Block(props: Props) {
                 return;
             }
             if (contextMenuState.open) {
-                setContextMenuState({ ...contextMenuState, open: false });
+                setContextMenuState({ open: false, x: e.pageX, y: e.pageY });
             } else {
                 setContextMenuState({ open: true, x: e.pageX, y: e.pageY });
             }
-            
             e.preventDefault();
             e.stopPropagation();
         }}
