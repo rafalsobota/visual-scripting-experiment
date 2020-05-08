@@ -1,7 +1,6 @@
 import React, { useState, useContext } from 'react';
 import { Theme, createStyles, makeStyles } from '@material-ui/core/styles';
 import BlockComposer from './BlockComposer';
-import BlockTemplate from './BlockTemplate';
 import EngineContext from './EngineContext';
 
 const useStyles = makeStyles((theme: Theme) =>

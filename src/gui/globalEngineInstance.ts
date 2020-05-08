@@ -1,4 +1,4 @@
-import { GraphEngine } from "../engine/GraphEngine";
+import GraphEngine from "../engine/GraphEngine";
 import EmptyBlockPrefab from "./blocks/EmptyBlockPrefab";
 import TextEmitterBlockPrefab from "./blocks/TextEmitterBlockPrefab";
 

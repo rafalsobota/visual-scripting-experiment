@@ -1,14 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { ThemeProvider } from '@material-ui/core/styles';
 import { CssBaseline } from '@material-ui/core';
-import EmptyBlock from './blocks/EmptyBlock';
 import theme from './theme';
 import { GraphSpec } from '../engine/GraphSpec';
 import EngineContext from './EngineContext';
 import globalEngineInstance from './globalEngineInstance';
 import GraphContext from './GraphContext';
 import Canvas from './Canvas';
-import Block from './blocks/Block';
 
 const engine = globalEngineInstance;
 

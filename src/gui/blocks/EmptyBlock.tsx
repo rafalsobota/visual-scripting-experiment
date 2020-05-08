@@ -1,7 +1,6 @@
 import React, { useContext } from 'react';
 import { makeStyles, Theme, createStyles } from '@material-ui/core/styles';
 import Paper from '@material-ui/core/Paper';
-import { Typography } from '@material-ui/core';
 import Block from './Block';
 import GraphContext from '../GraphContext';
 import { getBlock } from '../../engine/selectors';
@@ -26,7 +25,7 @@ function EmptyBlock(props: {id: string}) {
   return (
     <Block id={props.id}>
       <Paper className={classes.root}>
-        <Typography variant="subtitle2" className={classes.title}>{name}</Typography>
+        <div className={classes.title}>{name}</div>
       </Paper>
     </Block>
   );

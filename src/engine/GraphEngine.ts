@@ -5,7 +5,7 @@ import BlockPrefab from "./BlockPrefab";
 import Block from "./Block";
 
 
-export class GraphEngine {
+export default class GraphEngine {
 
     private stateChangeEmitter = new EventEmitter();
 

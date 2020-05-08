@@ -1,7 +1,6 @@
 import React, { useEffect, useContext } from 'react';
 import { makeStyles, Theme, createStyles } from '@material-ui/core/styles';
 import Paper from '@material-ui/core/Paper';
-import { Typography } from '@material-ui/core';
 import Block from './Block';
 import GraphContext from '../GraphContext';
 import { getBlock } from '../../engine/selectors';

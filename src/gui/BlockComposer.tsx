@@ -3,7 +3,6 @@ import List from '@material-ui/core/List';
 import ListItem from '@material-ui/core/ListItem';
 import ListItemText from '@material-ui/core/ListItemText';
 import { Popover } from '@material-ui/core';
-import { GraphEngine } from '../engine/GraphEngine';
 import BlockPrefab from '../engine/BlockPrefab';
 
 export default function BlockComposer(props: {
@@ -31,8 +30,8 @@ export default function BlockComposer(props: {
     >
       <List component="nav">
         {props.blocksPrefabs.map((block) =>
-          <ListItem button key={block.type}>
-            <ListItemText primary={block.name} onClick={() => props.onClick(block)} />
+          <ListItem button key={block.type} onClick={() => props.onClick(block)}>
+            <ListItemText primary={block.name} />
           </ListItem>
         )}
       </List>
