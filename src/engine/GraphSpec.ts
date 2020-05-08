@@ -1,14 +1,14 @@
 export interface GraphSpec {
     blocks: BlockSpec[]
-    // wires: WireSpec[]
+    wires: WireSpec[]
 }
 
 export interface BlockSpec {
     id: string // GUID żeby dało się merdżować zmiany w gicie
     name: string
     type: string
-    // inputPorts: PortSpec[]
-    // outputPorts: PortSpec[]
+    inputPorts: PortSpec[]
+    outputPorts: PortSpec[]
     // settings: any // place for block extensions
     x: number
     y: number
@@ -17,13 +17,15 @@ export interface BlockSpec {
 }
 
 export interface PortSpec {
-    id: string // GUID
+    id?: string // GUID
     payloadType: 'string' | 'boolean' | 'number'
     name: string
+    x?: number
+    y?: number
 }
 
 export interface WireSpec {
-    id: string // GUID
+    id?: string // GUID
     outputPort: string
     inputPort: string
 }

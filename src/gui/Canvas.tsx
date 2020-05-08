@@ -2,6 +2,8 @@ import React, { useState, useContext } from 'react';
 import { Theme, createStyles, makeStyles } from '@material-ui/core/styles';
 import BlockComposer from './BlockComposer';
 import EngineContext from './EngineContext';
+import GraphContext from './GraphContext';
+import { getWireLines } from '../engine/selectors';
 
 const useStyles = makeStyles((theme: Theme) =>
     createStyles({
@@ -10,6 +12,28 @@ const useStyles = makeStyles((theme: Theme) =>
             height: '100%',
             backgroundSize: '20px 20px',
             backgroundImage: 'radial-gradient(circle, #ccc 1px, rgba(0, 0, 0, 0) 1px)',
+            position: 'absolute'
+        },
+        wiresLayer: {
+            width: '100%',
+            height: '100%',
+            backgroundSize: '20px 20px',
+            backgroundImage: 'radial-gradient(circle, #ccc 1px, rgba(0, 0, 0, 0) 1px)',
+        },
+        blocksLayer: {
+            width: '100%',
+            height: '100%',
+            // position: 'static'
+        },
+        wire: {
+            stroke: theme.palette.primary.main,
+            strokeWidth: 2,
+        },
+        wiresSVG: {
+            position: 'absolute',
+            width: '100%',
+            height: '100%',
+            // backgroundColor: 'red'
         }
     }),
 );
@@ -20,6 +44,7 @@ interface Props {
 
 function Canvas(props: Props) {
     const classes = useStyles(props);
+    const graph = useContext(GraphContext);
     const engine = useContext(EngineContext);
     const [contextMenuState, setContextMenuState] = useState({ open: false, x: 0, y: 0 });
 
@@ -34,6 +59,11 @@ function Canvas(props: Props) {
                 e.stopPropagation();
             }}
         >
+            <svg xmlns="http://www.w3.org/2000/svg" className={classes.wiresSVG}>
+                {getWireLines(graph).map((w) =>
+                    <line x1={w.x1} y1={w.y1} x2={w.x2} y2={w.y2} className={classes.wire} />
+                )}
+            </svg>
             <div
                 className={classes.root}
                 onContextMenu={(e) => {

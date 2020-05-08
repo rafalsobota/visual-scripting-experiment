@@ -1,8 +1,9 @@
-import { GraphSpec, BlockSpec } from "./GraphSpec";
+import { GraphSpec, BlockSpec, WireSpec } from "./GraphSpec";
 import { EventEmitter } from "events";
 import {v4 as uuid} from 'uuid';
 import BlockPrefab from "./BlockPrefab";
 import Block from "./Block";
+import { getPort, getWire } from "./selectors";
 
 
 export default class GraphEngine {
@@ -10,15 +11,7 @@ export default class GraphEngine {
     private stateChangeEmitter = new EventEmitter();
 
     private blocks: Block[] = [];
-
-    private lastIndex: {[type: string]: number} = {};
-
-    private getNewIndex(type: string): number {
-        if (this.lastIndex[type] === undefined) {
-            this.lastIndex[type] = 0
-        }
-        return ++this.lastIndex[type];
-    }
+    private wires: WireSpec[] = [];
 
     private _blocksPrefabs: BlockPrefab[] = [];
 
@@ -34,7 +27,9 @@ export default class GraphEngine {
 
     private updateState(mutator: ()=>void) {
         mutator();
-        this.stateChangeEmitter.emit('stateChanged', this.serialize());
+        const state = this.serialize()
+        this.stateChangeEmitter.emit('stateChanged', state);
+        console.log("state changed", state);
     }
 
     public subscribe(f: (state: GraphSpec) => void) {
@@ -51,7 +46,8 @@ export default class GraphEngine {
 
     private serialize(): GraphSpec {
         return {
-            blocks: Object.values(this.blocks).map(n => n.serialize())
+            blocks: Object.values(this.blocks).map(n => n.serialize()),
+            wires: this.wires,
         }
     }
 
@@ -65,7 +61,6 @@ export default class GraphEngine {
         });
         return this;
     }
-
 
     // Sprawdza czy już istnieje bloczek z podaną nazwą i tworzy nową unikalną
     // jeśli nie istnieje Bloczek to zwraca Bloczek
@@ -100,8 +95,12 @@ export default class GraphEngine {
             this.updateState(() => {
                 const newId = uuid();
                 const name = this.createName(prefab.name);
-
                 const spec = prefab.newSpec(newId, type, name, x, y);
+                spec.inputPorts.concat(spec.outputPorts).forEach(p => {
+                    if (!p.id) {
+                        p.id = uuid();
+                    }
+                })
                 const newInstance = prefab.materialize(spec);
                 this.blocks.push(newInstance);
                 console.log(`Creating ${name} of type ${type} at (${x},${y})`);
@@ -127,6 +126,32 @@ export default class GraphEngine {
             }
 
         });
+    }
+
+    public setPortPosition(id: String, x: number, y: number) {
+        const port = getPort(this.serialize(), id);
+        if (port) {
+            if (port.x === x && port.y === y) return;
+            this.updateState(() => {        
+                    port.x = x;
+                    port.y = y;
+                
+            });
+        }
+    }
+
+    public connectPorts(outputPort: string, inputPort: string) {
+
+        const existingWire = getWire(this.serialize(), inputPort, outputPort);
+        if (existingWire) {
+            return;
+        }
+
+        this.updateState(() => {
+            this.wires.push({id: uuid(), inputPort: inputPort, outputPort: outputPort});
+        });
+
+        console.log(`connected ${inputPort} -> ${outputPort}`);
     }
 
 }

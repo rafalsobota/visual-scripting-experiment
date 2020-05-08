@@ -16,11 +16,11 @@ const useStyles = makeStyles((theme: Theme) =>
         padding: 4,
         height: 30,
     },
-    output: {
+    input: {
         width: 20,
         height: 20,
     },
-    outputIcon: {
+    inputIcon: {
         margin: 5,
         width: 10,
         height: 10,
@@ -29,7 +29,7 @@ const useStyles = makeStyles((theme: Theme) =>
         borderWidth: 2,
         borderStyle: 'solid',
     },
-    outputIconActive: {
+    inputIconActive: {
         backgroundColor: theme.palette.primary.main,
         margin: 5,
         width: 10,
@@ -38,7 +38,7 @@ const useStyles = makeStyles((theme: Theme) =>
     },
     main: {
         display: 'flex',
-        justifyContent: 'flex-end'
+        justifyContent: 'flex-start'
     },
     port: {
         '&:hover': {
@@ -56,23 +56,23 @@ const useStyles = makeStyles((theme: Theme) =>
 
 interface Props {id: string}
 
-export default function TextEmitterBlock(props: Props) {
+export default function TextPrinterBlock(props: Props) {
   const classes = useStyles(props);
   const graph = useContext(GraphContext);
   const engine = useContext(EngineContext);
   const currentBlock = getBlock(graph, props.id)!;
   const name = currentBlock.name;
-  const outputRef = useRef(null);
-  const outputPortId = currentBlock.outputPorts[0].id!;
-  const outputPortType = currentBlock.outputPorts[0].payloadType!;
+  const inputRef = useRef(null);
+  const inputPort = currentBlock.inputPorts[0]!;
 
   useEffect(() => {
     // componentDidMount
-    const portRef: any = outputRef.current;
+    const portRef: any = inputRef.current;
     const positionRect = portRef.getBoundingClientRect();
     const x = Math.round(positionRect.x + positionRect.width / 2);
     const y = Math.round(positionRect.y + positionRect.height / 2);
-    engine.setPortPosition(outputPortId, x, y);
+    const portId = currentBlock.inputPorts[0].id;
+    engine.setPortPosition(portId!, x, y);
   });
 
   return (
@@ -82,17 +82,38 @@ export default function TextEmitterBlock(props: Props) {
             <div className={classes.main}>
                 <div
                     className={classes.port}
-                    draggable
-                    onDragStart={(e) => {
-                        const data = JSON.stringify({ outputPortId, payloadType: outputPortType });
-                        e.dataTransfer.setData('Text', data);
-                        e.stopPropagation();
+                    onDrop={(e) => {
+                        e.preventDefault();
+                        const textData = e.dataTransfer.getData("Text");
+                        try {
+                            const { outputPortId, payloadType } = JSON.parse(textData);
+                            if (outputPortId && payloadType && payloadType === inputPort.payloadType) {
+                                engine.connectPorts(outputPortId, inputPort.id!);
+                            }
+                        } catch (e) {
+                            console.warn("dragging to port failed");
+                            console.warn(e);
+                        }
                     }}
+                    // onDragOver={(e) => {
+                    //     const textData = e.dataTransfer.getData("Text");
+                    //     try {
+                    //         const { inputPortId, payloadType } = JSON.parse(textData);
+                    //         if (inputPortId && payloadType && payloadType === inputPort.payloadType) {
+                    //             e.currentTarget.style.backgroundColor = 'green';
+                    //         }
+                    //     } catch (e) {
+                    //         console.log('onDragOver error', e);
+                    //     }
+
+
+                    //     console.log('dragOver', e.currentTarget);
+                    // }}
                 >
-                    <div className={classes.portName}>out</div>
-                    <div className={classes.output} ref={outputRef}>
-                        <div className={classes.outputIcon}></div>
+                    <div className={classes.input} ref={inputRef}>
+                        <div className={classes.inputIcon}></div>
                     </div>
+                    <div className={classes.portName}>in</div>
                 </div>
             </div>
             

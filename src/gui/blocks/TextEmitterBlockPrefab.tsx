@@ -13,7 +13,9 @@ const TextEmitterBlockPrefab: BlockPrefab = {
             x,
             y,
             name,
-            type
+            type,
+            outputPorts: [{name: 'out', payloadType: 'string'}],
+            inputPorts: []
         }
     },
     render(spec: BlockSpec) {
