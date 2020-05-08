@@ -33,8 +33,7 @@ function GraphGUI() {
             <meta name="viewport" content="minimum-scale=1, initial-scale=1, width=device-width" />
             <Canvas>
                 {graphState.blocks.map((block) =>
-                    // <EmptyBlock id={block.id} />
-                    React.createElement(EmptyBlock, {id: block.id})
+                    engine.getPrefab(block.type)?.render(block)
                 )}
             </Canvas>
         </ThemeProvider>

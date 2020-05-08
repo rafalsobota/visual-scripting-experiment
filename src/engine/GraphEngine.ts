@@ -24,6 +24,10 @@ export class GraphEngine {
 
     public get blocksPrefabs(): BlockPrefab[] { return this._blocksPrefabs; }
 
+    public getPrefab(type: string): BlockPrefab | undefined {
+        return this._blocksPrefabs.find(p => p.type === type);
+    }
+
     private updateState(updateor: ()=>void) {
         updateor();
         this.stateChangeEmitter.emit('stateChanged', this.serialize());
