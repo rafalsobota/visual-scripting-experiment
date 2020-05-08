@@ -33,7 +33,9 @@ function GraphGUI() {
             <meta name="viewport" content="minimum-scale=1, initial-scale=1, width=device-width" />
             <Canvas>
                 {graphState.blocks.map((block) =>
-                    engine.getPrefab(block.type)?.render(block)
+                    <div key={block.id}>
+                        {engine.render(block)}
+                    </div>
                 )}
             </Canvas>
         </ThemeProvider>

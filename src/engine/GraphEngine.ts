@@ -28,6 +28,10 @@ export class GraphEngine {
         return this._blocksPrefabs.find(p => p.type === type);
     }
 
+    public render(block: BlockSpec) {
+        return this.getPrefab(block.type)?.render(block);
+    }
+
     private updateState(updateor: ()=>void) {
         updateor();
         this.stateChangeEmitter.emit('stateChanged', this.serialize());

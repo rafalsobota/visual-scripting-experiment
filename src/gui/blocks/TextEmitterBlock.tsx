@@ -31,7 +31,7 @@ export default function TextEmitterBlock(props: Props) {
   });
 
   return (
-      <Block id={props.id} >
+      <Block id={props.id}>
         <Paper className={classes.root} draggable>
             <div className={classes.title}>{name}</div>
         </Paper>
