@@ -10,7 +10,7 @@ export default class GraphEngine {
 
   private blocks: Block[] = [];
   private wires: WireSpec[] = [];
-  private portToBlock: { [portId: string]: Block } = {};
+  private inputPortToBlock: { [portId: string]: Block } = {};
 
   private _blocksPrefabs: BlockPrefab[] = [];
 
@@ -101,29 +101,33 @@ export default class GraphEngine {
             p.id = uuid();
           }
         });
-        const newInstance = prefab.materialize(spec);
+        const newInstance = prefab.materialize(spec, (portName, payload) => {
+          this.receive(newId, portName, payload);
+        });
+        spec.inputPorts.forEach((p) => {
+          if (p.id) {
+            this.inputPortToBlock[p.id] = newInstance;
+          }
+        });
         this.blocks.push(newInstance);
-
-        newInstance.emitter.on('event', (e) => this.receiveEvent(e));
-
         console.log(`Creating ${name} of type ${type} at (${x},${y})`);
       });
     }
   }
 
-  private receiveEvent(e: { port: string; payload: any }) {
-    console.log('event', e);
-    const { port, payload } = e;
-    this.wires
-      .filter((w) => w.outputPort === port)
-      .forEach((w) => {
-        const spec = this.serialize();
-        const receiverBlock = spec.blocks.find((b) => !!b.inputPorts.find((p) => p.id === w.inputPort));
-        if (receiverBlock) {
-          const block = this.blocks.find((b) => b.id === receiverBlock.id);
-          block?.receive(w.inputPort, payload);
-        }
-      });
+  private receive(blockId: string, portName: string, payload: any): void {
+    const block = this.serialize().blocks.find((b) => b.id === blockId);
+    if (!block) return;
+    const port = block.outputPorts.find((p) => p.name === portName);
+    if (!port) return;
+    const wires = this.wires.filter((w) => w.outputPort === port.id);
+    wires.forEach((w) => {
+      const receiver = this.inputPortToBlock[w.inputPort];
+      if (!receiver) return;
+      const inputPort = receiver.serialize().inputPorts.find((p) => p.id === w.inputPort);
+      if (!inputPort) return;
+      receiver.receive(inputPort.name, payload);
+    });
   }
 
   public deleteBlock(id: string) {
@@ -132,8 +136,11 @@ export default class GraphEngine {
     const blockState = block.serialize();
     this.updateState(() => {
       this.blocks = this.blocks.filter((b) => b.id !== id);
-      const ports = blockState.inputPorts.concat(blockState.outputPorts).map((p) => p.id!);
-      this.wires = this.wires.filter((w) => !ports.includes(w.inputPort) && !ports.includes(w.outputPort));
+      const portsIds = blockState.inputPorts.concat(blockState.outputPorts).map((p) => p.id!);
+      this.wires = this.wires.filter((w) => !portsIds.includes(w.inputPort) && !portsIds.includes(w.outputPort));
+      portsIds.forEach((p) => {
+        delete this.inputPortToBlock[p];
+      });
     });
   }
 
