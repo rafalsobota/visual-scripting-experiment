@@ -87,53 +87,58 @@ export default function BlockPortsWrapper({ id, children }: BlockPortsWrapperPro
         <Grid item xs={12}>
           {currentBlock.name}
         </Grid>
-        <Grid item xs={6}>
-          {currentBlock.inputPorts.map((inputPort) => (
-            <div
-              className={classes.port}
-              onDrop={(e) => {
-                e.preventDefault();
-                const textData = e.dataTransfer.getData('Text');
-                try {
-                  const { outputPortId, payloadType } = JSON.parse(textData);
-                  if (outputPortId && payloadType && payloadType === inputPort.payloadType) {
-                    engine.connectPorts(outputPortId, inputPort.id!);
+        <Grid item container xs={12} spacing={0} justify="space-between" alignItems="flex-start">
+          <Grid item xs>
+            {currentBlock.inputPorts.map((inputPort) => (
+              <div
+                key={inputPort.id}
+                className={classes.port}
+                onDrop={(e) => {
+                  e.preventDefault();
+                  const textData = e.dataTransfer.getData('Text');
+                  try {
+                    const { outputPortId, payloadType } = JSON.parse(textData);
+                    if (outputPortId && payloadType && payloadType === inputPort.payloadType) {
+                      engine.connectPorts(outputPortId, inputPort.id!);
+                    }
+                  } catch (e) {
+                    console.warn('dragging to port failed');
+                    console.warn(e);
                   }
-                } catch (e) {
-                  console.warn('dragging to port failed');
-                  console.warn(e);
-                }
-              }}
-            >
+                }}
+              >
+                <div
+                  className={isInputPortWired(inputPort.name) ? classes.portIconActive : classes.portIcon}
+                  ref={portsRef.current[inputPort.id!]}
+                ></div>
+                <div className={classes.portName}>in</div>
+              </div>
+            ))}
+          </Grid>
+          <Grid item xs>
+            {currentBlock.outputPorts.map((outputPort) => (
               <div
-                className={isInputPortWired(inputPort.name) ? classes.portIconActive : classes.portIcon}
-                ref={portsRef.current[inputPort.id!]}
-              ></div>
-              <div className={classes.portName}>in</div>
-            </div>
-          ))}
-        </Grid>
-        <Grid item xs={6}>
-          {currentBlock.outputPorts.map((outputPort) => (
-            <div
-              className={classes.port}
-              draggable
-              onDragStart={(e) => {
-                const data = JSON.stringify({
-                  outputPortId: outputPort.id!,
-                  payloadType: outputPort.payloadType!,
-                });
-                e.dataTransfer.setData('Text', data);
-                e.stopPropagation();
-              }}
-            >
-              <div className={classes.portName}>{outputPort.name}</div>
-              <div
-                className={isOutputPortWired(outputPort.name) ? classes.portIconActive : classes.portIcon}
-                ref={portsRef.current[outputPort.id!]}
-              ></div>
-            </div>
-          ))}
+                key={outputPort.id}
+                className={classes.port}
+                style={{ placeContent: 'flex-end' }}
+                draggable
+                onDragStart={(e) => {
+                  const data = JSON.stringify({
+                    outputPortId: outputPort.id!,
+                    payloadType: outputPort.payloadType!,
+                  });
+                  e.dataTransfer.setData('Text', data);
+                  e.stopPropagation();
+                }}
+              >
+                <div className={classes.portName}>{outputPort.name}</div>
+                <div
+                  className={isOutputPortWired(outputPort.name) ? classes.portIconActive : classes.portIcon}
+                  ref={portsRef.current[outputPort.id!]}
+                ></div>
+              </div>
+            ))}
+          </Grid>
         </Grid>
         <Grid item xs={12}>
           {children}
