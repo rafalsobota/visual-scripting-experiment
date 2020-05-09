@@ -4,22 +4,28 @@ import BlockComposer from './BlockComposer';
 import EngineContext from './EngineContext';
 import GraphContext from './GraphContext';
 import { getWireLines } from '../engine/selectors';
+import WireLine from '../engine/WireLine';
 
 const useStyles = makeStyles((theme: Theme) =>
     createStyles({
-        root: {
+        backgroundLayer: {
             width: '100%',
             height: '100%',
             backgroundSize: '20px 20px',
             backgroundImage: 'radial-gradient(circle, #ccc 1px, rgba(0, 0, 0, 0) 1px)',
             position: 'absolute'
         },
-        wiresLayer: {
+        layer: {
             width: '100%',
             height: '100%',
-            backgroundSize: '20px 20px',
-            backgroundImage: 'radial-gradient(circle, #ccc 1px, rgba(0, 0, 0, 0) 1px)',
+            position: 'absolute'
         },
+        // wiresLayer: {
+        //     width: '100%',
+        //     height: '100%',
+        //     backgroundSize: '20px 20px',
+        //     backgroundImage: 'radial-gradient(circle, #ccc 1px, rgba(0, 0, 0, 0) 1px)',
+        // },
         blocksLayer: {
             width: '100%',
             height: '100%',
@@ -28,6 +34,7 @@ const useStyles = makeStyles((theme: Theme) =>
         wire: {
             stroke: theme.palette.primary.main,
             strokeWidth: 2,
+            fill: 'none',
         },
         wiresSVG: {
             position: 'absolute',
@@ -42,6 +49,10 @@ interface Props {
     children: any
 }
 
+function wireLineToSVGPolylinePoints(w: WireLine): string {
+    return `${w.x1},${w.y1} ${w.x1+20},${w.y1} ${w.x2-20},${w.y2} ${w.x2},${w.y2}`;
+}
+
 function Canvas(props: Props) {
     const classes = useStyles(props);
     const graph = useContext(GraphContext);
@@ -50,7 +61,7 @@ function Canvas(props: Props) {
 
     return (
         <div
-            className={classes.root}
+            className={classes.backgroundLayer}
             onContextMenu={(e) => {
                 if (e.shiftKey) {
                     return;
@@ -59,13 +70,8 @@ function Canvas(props: Props) {
                 e.stopPropagation();
             }}
         >
-            <svg xmlns="http://www.w3.org/2000/svg" className={classes.wiresSVG}>
-                {getWireLines(graph).map((w) =>
-                    <line x1={w.x1} y1={w.y1} x2={w.x2} y2={w.y2} className={classes.wire} />
-                )}
-            </svg>
             <div
-                className={classes.root}
+                className={classes.layer}
                 onContextMenu={(e) => {
                     if (e.shiftKey) {
                         return;
@@ -95,6 +101,11 @@ function Canvas(props: Props) {
                     e.preventDefault()
                 }}
             >
+                <svg xmlns="http://www.w3.org/2000/svg" className={classes.wiresSVG}>
+                {getWireLines(graph).map((w) =>
+                    <polyline points={wireLineToSVGPolylinePoints(w)} className={classes.wire} onClick={(e) => { console.log(e) }}/>
+                )}
+            </svg>
                 <BlockComposer
                     blocksPrefabs={engine.blocksPrefabs}
                     onClick={(blockTemplate) => {

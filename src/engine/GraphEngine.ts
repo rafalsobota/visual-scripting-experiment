@@ -109,8 +109,13 @@ export default class GraphEngine {
     }
 
     public deleteBlock(id: string) {
+        const block = this.blocks.find(b => b.id === id);
+        if (!block) return;
+        const blockState = block.serialize();
         this.updateState(() => {
             this.blocks = this.blocks.filter(b => b.id !== id);
+            const ports = blockState.inputPorts.concat(blockState.outputPorts).map(p => p.id!);
+            this.wires = this.wires.filter(w =>  !ports.includes(w.inputPort) && !ports.includes(w.outputPort));
         });
     }
 

@@ -3,7 +3,7 @@ import { makeStyles, Theme, createStyles } from '@material-ui/core/styles';
 import Paper from '@material-ui/core/Paper';
 import Block from './Block';
 import GraphContext from '../GraphContext';
-import { getBlock } from '../../engine/selectors';
+import { getBlock, getPort, getPortWires } from '../../engine/selectors';
 import EngineContext from '../EngineContext';
 
 const useStyles = makeStyles((theme: Theme) =>
@@ -16,11 +16,7 @@ const useStyles = makeStyles((theme: Theme) =>
         padding: 4,
         height: 30,
     },
-    input: {
-        width: 20,
-        height: 20,
-    },
-    inputIcon: {
+    portIcon: {
         margin: 5,
         width: 10,
         height: 10,
@@ -29,7 +25,7 @@ const useStyles = makeStyles((theme: Theme) =>
         borderWidth: 2,
         borderStyle: 'solid',
     },
-    inputIconActive: {
+    portIconActive: {
         backgroundColor: theme.palette.primary.main,
         margin: 5,
         width: 10,
@@ -64,6 +60,7 @@ export default function TextPrinterBlock(props: Props) {
   const name = currentBlock.name;
   const inputRef = useRef(null);
   const inputPort = currentBlock.inputPorts[0]!;
+  const portActive = getPortWires(graph, inputPort.id!).length > 0;
 
   useEffect(() => {
     // componentDidMount
@@ -110,9 +107,7 @@ export default function TextPrinterBlock(props: Props) {
                     //     console.log('dragOver', e.currentTarget);
                     // }}
                 >
-                    <div className={classes.input} ref={inputRef}>
-                        <div className={classes.inputIcon}></div>
-                    </div>
+                    <div className={portActive ? classes.portIconActive : classes.portIcon} ref={inputRef}></div>
                     <div className={classes.portName}>in</div>
                 </div>
             </div>

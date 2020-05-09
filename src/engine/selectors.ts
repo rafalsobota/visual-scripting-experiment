@@ -25,3 +25,7 @@ export function getWireLines(spec: GraphSpec): WireLine[] {
   });
   return wireLines;
 }
+
+export function getPortWires(spec: GraphSpec, id: string): WireSpec[] {
+    return spec.wires.filter(w => w.inputPort === id || w.outputPort === id);
+}

@@ -3,7 +3,7 @@ import { makeStyles, Theme, createStyles } from '@material-ui/core/styles';
 import Paper from '@material-ui/core/Paper';
 import Block from './Block';
 import GraphContext from '../GraphContext';
-import { getBlock } from '../../engine/selectors';
+import { getBlock, getPort, getPortWires } from '../../engine/selectors';
 import EngineContext from '../EngineContext';
 
 const useStyles = makeStyles((theme: Theme) =>
@@ -16,11 +16,7 @@ const useStyles = makeStyles((theme: Theme) =>
         padding: 4,
         height: 30,
     },
-    output: {
-        width: 20,
-        height: 20,
-    },
-    outputIcon: {
+    portIcon: {
         margin: 5,
         width: 10,
         height: 10,
@@ -29,7 +25,7 @@ const useStyles = makeStyles((theme: Theme) =>
         borderWidth: 2,
         borderStyle: 'solid',
     },
-    outputIconActive: {
+    portIconActive: {
         backgroundColor: theme.palette.primary.main,
         margin: 5,
         width: 10,
@@ -66,6 +62,8 @@ export default function TextEmitterBlock(props: Props) {
   const outputPortId = currentBlock.outputPorts[0].id!;
   const outputPortType = currentBlock.outputPorts[0].payloadType!;
 
+  const portActive = getPortWires(graph, outputPortId).length > 0;
+
   useEffect(() => {
     // componentDidMount
     const portRef: any = outputRef.current;
@@ -90,9 +88,7 @@ export default function TextEmitterBlock(props: Props) {
                     }}
                 >
                     <div className={classes.portName}>out</div>
-                    <div className={classes.output} ref={outputRef}>
-                        <div className={classes.outputIcon}></div>
-                    </div>
+                    <div className={portActive ? classes.portIconActive : classes.portIcon} ref={outputRef}></div>
                 </div>
             </div>
             
