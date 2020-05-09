@@ -12,15 +12,15 @@ const useStyles = makeStyles((theme: Theme) =>
       height: 100,
     },
     title: {
-        padding: 4
-    }
+      padding: 4,
+    },
   }),
 );
 
-function EmptyBlock(props: {id: string}) {
+function EmptyBlock(props: { id: string }) {
   const classes = useStyles();
   const graph = useContext(GraphContext);
-  const name = getBlock(graph, props.id)!.name
+  const name = getBlock(graph, props.id)?.name;
 
   return (
     <Block id={props.id}>

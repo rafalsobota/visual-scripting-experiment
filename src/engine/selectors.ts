@@ -1,11 +1,11 @@
-import { BlockSpec, GraphSpec, PortSpec, WireSpec } from "./GraphSpec";
-import WireLine from "./WireLine";
+import { BlockSpec, GraphSpec, PortSpec, WireSpec } from './GraphSpec';
+import WireLine from './WireLine';
 
-export function getBlock(spec: GraphSpec, id: String): BlockSpec | undefined {
+export function getBlock(spec: GraphSpec, id: string): BlockSpec | undefined {
   return spec.blocks.find((b) => b.id === id);
 }
 
-export function getPort(spec: GraphSpec, id: String): PortSpec | undefined {
+export function getPort(spec: GraphSpec, id: string): PortSpec | undefined {
   return spec.blocks.flatMap(({ inputPorts, outputPorts }) => [...inputPorts, ...outputPorts]).find((p) => p.id === id);
 }
 
@@ -27,5 +27,5 @@ export function getWireLines(spec: GraphSpec): WireLine[] {
 }
 
 export function getPortWires(spec: GraphSpec, id: string): WireSpec[] {
-    return spec.wires.filter(w => w.inputPort === id || w.outputPort === id);
+  return spec.wires.filter((w) => w.inputPort === id || w.outputPort === id);
 }

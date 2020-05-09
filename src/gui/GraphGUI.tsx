@@ -11,35 +11,33 @@ import Canvas from './Canvas';
 const engine = globalEngineInstance;
 
 function GraphGUI() {
-    const [graphState, setGraphState] = useState<GraphSpec>(engine.state);
+  const [graphState, setGraphState] = useState<GraphSpec>(engine.state);
 
-    useEffect(() => {
-        function listener(newState: GraphSpec) {
-            setGraphState(newState);
-        }
-        engine.subscribe(listener);
-        return () => engine.unsubscribe(listener);
-    }, [setGraphState]);
+  useEffect(() => {
+    function listener(newState: GraphSpec) {
+      setGraphState(newState);
+    }
+    engine.subscribe(listener);
+    return () => engine.unsubscribe(listener);
+  }, [setGraphState]);
 
-    return (
-        <EngineContext.Provider value={engine}>
-        <GraphContext.Provider value={graphState}>
+  return (
+    <EngineContext.Provider value={engine}>
+      <GraphContext.Provider value={graphState}>
         <ThemeProvider theme={theme}>
-            <CssBaseline />
-            <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700&display=swap" />
-            <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons" />
-            <meta name="viewport" content="minimum-scale=1, initial-scale=1, width=device-width" />
-            <Canvas>
-                {graphState.blocks.map((block) =>
-                    <div key={block.id}>
-                        {engine.render(block)}
-                    </div>
-                )}
-            </Canvas>
+          <CssBaseline />
+          <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700&display=swap" />
+          <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons" />
+          <meta name="viewport" content="minimum-scale=1, initial-scale=1, width=device-width" />
+          <Canvas>
+            {graphState.blocks.map((block) => (
+              <div key={block.id}>{engine.render(block)}</div>
+            ))}
+          </Canvas>
         </ThemeProvider>
-        </GraphContext.Provider>
-        </EngineContext.Provider>
-    );
+      </GraphContext.Provider>
+    </EngineContext.Provider>
+  );
 }
 
 export default GraphGUI;

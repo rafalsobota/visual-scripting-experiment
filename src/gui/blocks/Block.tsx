@@ -8,15 +8,18 @@ import { Popover, List, ListItem, ListItemText } from '@material-ui/core';
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
     root: {
-      position: 'absolute'
+      position: 'absolute',
     },
     dangerousAction: {
-        color: theme.palette.error.main,
-    }
+      color: theme.palette.error.main,
+    },
   }),
 );
 
-interface Props {id: string, children: any}
+interface Props {
+  id: string;
+  children: any;
+}
 
 export default function Block(props: Props) {
   const classes = useStyles(props);
@@ -28,61 +31,64 @@ export default function Block(props: Props) {
   const y = getBlock(graph, props.id)!.y;
 
   return (
-      <div
-        className={classes.root}
-        style={{left: x, top: y}}
-        draggable
-        onDragStart={(e) => {
-            const target: any = e.target;
-            target.style.opacity = "0.5";
-            const shiftX = e.clientX - target.getBoundingClientRect().left;
-            const shiftY = e.clientY - target.getBoundingClientRect().top;
-            const data = JSON.stringify({ blockId: props.id, shiftX, shiftY });
-            e.dataTransfer.setData('Text', data);
+    <div
+      className={classes.root}
+      style={{ left: x, top: y }}
+      draggable
+      onDragStart={(e) => {
+        const target: any = e.target;
+        target.style.opacity = '0.5';
+        const shiftX = e.clientX - target.getBoundingClientRect().left;
+        const shiftY = e.clientY - target.getBoundingClientRect().top;
+        const data = JSON.stringify({ blockId: props.id, shiftX, shiftY });
+        e.dataTransfer.setData('Text', data);
+      }}
+      onDragEnd={(e) => {
+        const target: any = e.target;
+        target.style.opacity = '1';
+      }}
+      onContextMenu={(e) => {
+        if (e.shiftKey) {
+          return;
+        }
+        if (contextMenuState.open) {
+          setContextMenuState({ open: false, x: e.pageX, y: e.pageY });
+        } else {
+          setContextMenuState({ open: true, x: e.pageX, y: e.pageY });
+        }
+        e.preventDefault();
+        e.stopPropagation();
+      }}
+    >
+      {props.children}
+      <Popover
+        anchorReference="anchorPosition"
+        anchorPosition={{ top: contextMenuState.y, left: contextMenuState.x }}
+        anchorOrigin={{
+          vertical: 'top',
+          horizontal: 'left',
         }}
-        onDragEnd={(e) => {
-            const target: any = e.target;
-            target.style.opacity = "1";
+        transformOrigin={{
+          vertical: 'top',
+          horizontal: 'left',
         }}
-        onContextMenu={(e) => {
-            if (e.shiftKey) {
-                return;
-            }
-            if (contextMenuState.open) {
-                setContextMenuState({ open: false, x: e.pageX, y: e.pageY });
-            } else {
-                setContextMenuState({ open: true, x: e.pageX, y: e.pageY });
-            }
-            e.preventDefault();
-            e.stopPropagation();
+        open={contextMenuState.open}
+        onClose={() => {
+          setContextMenuState({ ...contextMenuState, open: false });
         }}
-        >
-          {props.children}
-          <Popover
-            anchorReference="anchorPosition"
-            anchorPosition={{ top: contextMenuState.y, left: contextMenuState.x }}
-            anchorOrigin={{
-                vertical: 'top',
-                horizontal: 'left',
+      >
+        <List component="nav">
+          <ListItem
+            button
+            onClick={() => {
+              engine.deleteBlock(props.id);
+              setContextMenuState({ ...contextMenuState, open: false });
             }}
-            transformOrigin={{
-                vertical: 'top',
-                horizontal: 'left',
-            }}
-            open={contextMenuState.open}
-            onClose={() => {
-                setContextMenuState({...contextMenuState, open: false})
-            }}
-            >
-            <List component="nav">
-                <ListItem button onClick={() => {
-                    engine.deleteBlock(props.id);
-                    setContextMenuState({...contextMenuState, open: false});
-                }}>
-                <ListItemText primary="Delete" className={classes.dangerousAction} />
-                </ListItem>
-            </List>
-            </Popover>
-      </div>
+          >
+            <ListItemText primary="Delete" className={classes.dangerousAction} />
+          </ListItem>
+        </List>
+      </Popover>
+    </div>
   );
 }
