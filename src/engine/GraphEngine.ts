@@ -10,6 +10,7 @@ export default class GraphEngine {
 
   private blocks: Block[] = [];
   private wires: WireSpec[] = [];
+  private portToBlock: { [portId: string]: Block } = {};
 
   private _blocksPrefabs: BlockPrefab[] = [];
 
