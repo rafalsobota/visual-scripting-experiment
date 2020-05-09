@@ -84,7 +84,7 @@ export default function BlockPortsWrapper({ id, children }: BlockPortsWrapperPro
   return (
     <Paper className={classes.root} draggable>
       <Grid container spacing={0}>
-        <Grid item xs={12}>
+        <Grid item xs={12} className={classes.title}>
           {currentBlock.name}
         </Grid>
         <Grid item container xs={12} spacing={0} justify="space-between" alignItems="flex-start">
