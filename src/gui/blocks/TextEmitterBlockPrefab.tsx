@@ -3,6 +3,7 @@ import BlockPrefab from '../../engine/BlockPrefab';
 import { BlockSpec } from '../../engine/GraphSpec';
 import Block from '../../engine/Block';
 import TextEmitterBlock from './TextEmitterBlock';
+import TextEmitterBlockLogic from './TextEmitterBlockLogic';
 
 const TextEmitterBlockPrefab: BlockPrefab = {
   type: 'text-emitter',
@@ -22,7 +23,7 @@ const TextEmitterBlockPrefab: BlockPrefab = {
     return <TextEmitterBlock id={spec.id}></TextEmitterBlock>;
   },
   materialize(spec: BlockSpec): Block {
-    return new Block(spec);
+    return new TextEmitterBlockLogic(spec);
   },
 };
 

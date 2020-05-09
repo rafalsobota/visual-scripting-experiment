@@ -3,6 +3,7 @@ import BlockPrefab from '../../engine/BlockPrefab';
 import { BlockSpec } from '../../engine/GraphSpec';
 import Block from '../../engine/Block';
 import TextPrinterBlock from './TextPrinterBlock';
+import TextPrinterBlockLogic from './TextPrinterBlockLogic';
 
 const TextPrinterBlockPrefab: BlockPrefab = {
   type: 'text-printer',
@@ -22,7 +23,7 @@ const TextPrinterBlockPrefab: BlockPrefab = {
     return <TextPrinterBlock id={spec.id}></TextPrinterBlock>;
   },
   materialize(spec: BlockSpec): Block {
-    return new Block(spec);
+    return new TextPrinterBlockLogic(spec);
   },
 };
 

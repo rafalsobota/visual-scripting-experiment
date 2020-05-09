@@ -9,7 +9,7 @@ export interface BlockSpec {
   type: string;
   inputPorts: PortSpec[];
   outputPorts: PortSpec[];
-  // settings: any // place for block extensions
+  settings?: any; // place for block extensions
   x: number;
   y: number;
   // width: number

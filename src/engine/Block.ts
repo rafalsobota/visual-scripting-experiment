@@ -1,7 +1,9 @@
 import { BlockSpec } from './GraphSpec';
+import { EventEmitter } from 'events';
 
 class Block {
-  private spec: BlockSpec;
+  protected spec: BlockSpec;
+  public emitter: EventEmitter;
 
   public get id(): string {
     return this.spec.id;
@@ -9,6 +11,7 @@ class Block {
 
   constructor(spec: BlockSpec) {
     this.spec = spec;
+    this.emitter = new EventEmitter();
   }
 
   serialize(): BlockSpec {
@@ -18,6 +21,10 @@ class Block {
   move(x: number, y: number) {
     this.spec.x = x;
     this.spec.y = y;
+  }
+
+  receive(portId: string, payload: any) {
+    // do nothing
   }
 }
 

@@ -10,6 +10,7 @@ export default class GraphEngine {
 
   private blocks: Block[] = [];
   private wires: WireSpec[] = [];
+  private portToBlock: { [portId: string]: Block } = {};
 
   private _blocksPrefabs: BlockPrefab[] = [];
 
@@ -102,9 +103,27 @@ export default class GraphEngine {
         });
         const newInstance = prefab.materialize(spec);
         this.blocks.push(newInstance);
+
+        newInstance.emitter.on('event', (e) => this.receiveEvent(e));
+
         console.log(`Creating ${name} of type ${type} at (${x},${y})`);
       });
     }
+  }
+
+  private receiveEvent(e: { port: string; payload: any }) {
+    console.log('event', e);
+    const { port, payload } = e;
+    this.wires
+      .filter((w) => w.outputPort === port)
+      .forEach((w) => {
+        const spec = this.serialize();
+        const receiverBlock = spec.blocks.find((b) => !!b.inputPorts.find((p) => p.id === w.inputPort));
+        if (receiverBlock) {
+          const block = this.blocks.find((b) => b.id === receiverBlock.id);
+          block?.receive(w.inputPort, payload);
+        }
+      });
   }
 
   public deleteBlock(id: string) {
@@ -167,5 +186,9 @@ export default class GraphEngine {
     this.updateState(() => {
       this.wires = this.wires.filter((w) => w.id !== id);
     });
+  }
+
+  public getBlock(id: string): Block | undefined {
+    return this.blocks.find((b) => b.id === id);
   }
 }
