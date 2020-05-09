@@ -3,7 +3,7 @@ import { makeStyles, Theme, createStyles } from '@material-ui/core/styles';
 import Paper from '@material-ui/core/Paper';
 import Block from './Block';
 import GraphContext from '../GraphContext';
-import { getBlock, getPort } from '../../engine/selectors';
+import { getBlock } from '../../engine/selectors';
 import EngineContext from '../EngineContext';
 
 const useStyles = makeStyles((theme: Theme) =>

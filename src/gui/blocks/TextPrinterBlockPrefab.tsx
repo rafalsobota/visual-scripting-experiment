@@ -2,7 +2,6 @@ import React from 'react';
 import BlockPrefab from '../../engine/BlockPrefab';
 import { BlockSpec } from '../../engine/GraphSpec';
 import Block from '../../engine/Block';
-import TextEmitterBlock from './TextEmitterBlock';
 import TextPrinterBlock from './TextPrinterBlock';
 
 const TextPrinterBlockPrefab: BlockPrefab = {
