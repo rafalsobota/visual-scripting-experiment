@@ -104,7 +104,7 @@ export default class GraphEngine {
         this.blocks.push(newInstance);
 
         newInstance.emitter.on('event', (e) => this.receiveEvent(e));
-        newInstance.emitter.on('state-changed', (e) => this.receiveStateChanged());
+        newInstance.emitter.on('state-changed', () => this.receiveStateChanged());
 
         console.log(`Creating ${name} of type ${type} at (${x},${y})`);
       });
