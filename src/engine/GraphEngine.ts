@@ -8,9 +8,9 @@ import { getPort, getWire } from './selectors';
 export default class GraphEngine {
   private stateChangeEmitter = new EventEmitter();
 
-  private blocks: Block[] = [];
-  private wires: WireSpec[] = [];
-  private inputPortToBlock: { [portId: string]: Block } = {};
+  private blocks: Block[] = []; // dla kolejności wyświetlania jednego na drugim
+  private blocksById: { [id: string]: Block } = {};
+  private wiresByOutputPort: { [inputPort: string]: WireSpec[] } = {}; // do szukania odbiorcy eventu
 
   private _blocksPrefabs: BlockPrefab[] = [];
 
@@ -48,7 +48,7 @@ export default class GraphEngine {
   private serialize(): GraphSpec {
     return {
       blocks: this.blocks.map((b) => b.serialize()),
-      wires: this.wires,
+      wires: Object.values(this.wiresByOutputPort).flat(),
     };
   }
 
@@ -68,13 +68,13 @@ export default class GraphEngine {
   // jeśli istnieje Bloczek to zwraca Bloczek 2
   // jeśli istnieje Bloczek 40, to zwraca Bloczek 41
   private createName(baseName: string): string {
-    const existing = this.blocks.find((b) => b.serialize().name === baseName);
+    const existing = Object.values(this.blocksById).find((b) => b.serialize().name === baseName);
     if (!existing) {
       return baseName;
     }
 
     const regexp = new RegExp(`^${baseName} (\\d+)$`, 'i');
-    const numbers = this.blocks
+    const numbers = Object.values(this.blocksById)
       .map((b) => regexp.exec(b.serialize().name))
       .map((r) => !!r && r[1])
       .filter((r) => !!r)
@@ -98,17 +98,13 @@ export default class GraphEngine {
         const spec = prefab.newSpec(newId, type, name, x, y);
         spec.inputPorts.concat(spec.outputPorts).forEach((p) => {
           if (!p.id) {
-            p.id = uuid();
+            p.id = `${newId}/${p.name}`;
           }
         });
         const newInstance = prefab.materialize(spec, (portName, payload) => {
           this.receive(newId, portName, payload);
         });
-        spec.inputPorts.forEach((p) => {
-          if (p.id) {
-            this.inputPortToBlock[p.id] = newInstance;
-          }
-        });
+        this.blocksById[newId] = newInstance;
         this.blocks.push(newInstance);
         console.log(`Creating ${name} of type ${type} at (${x},${y})`);
       });
@@ -116,42 +112,44 @@ export default class GraphEngine {
   }
 
   private receive(blockId: string, portName: string, payload: any): void {
-    const block = this.serialize().blocks.find((b) => b.id === blockId);
-    if (!block) return;
-    const port = block.outputPorts.find((p) => p.name === portName);
-    if (!port) return;
-    const wires = this.wires.filter((w) => w.outputPort === port.id);
+    const wires = this.wiresByOutputPort[`${blockId}/${portName}`] || [];
     wires.forEach((w) => {
-      const receiver = this.inputPortToBlock[w.inputPort];
-      if (!receiver) return;
-      const inputPort = receiver.serialize().inputPorts.find((p) => p.id === w.inputPort);
-      if (!inputPort) return;
-      receiver.receive(inputPort.name, payload);
+      const [blockId, inputPortName] = w.inputPort.split('/');
+      const block = this.blocksById[blockId];
+      if (!block) return;
+      block.receive(inputPortName, payload);
     });
   }
 
   public deleteBlock(id: string) {
-    const block = this.blocks.find((b) => b.id === id);
+    const block = this.blocksById[id];
     if (!block) return;
-    const blockState = block.serialize();
     this.updateState(() => {
-      this.blocks = this.blocks.filter((b) => b.id !== id);
-      const portsIds = blockState.inputPorts.concat(blockState.outputPorts).map((p) => p.id!);
-      this.wires = this.wires.filter((w) => !portsIds.includes(w.inputPort) && !portsIds.includes(w.outputPort));
-      portsIds.forEach((p) => {
-        delete this.inputPortToBlock[p];
+      const blockSpec = block.serialize();
+
+      blockSpec.outputPorts.forEach((p) => {
+        delete this.wiresByOutputPort[`${id}/${p.name}`];
       });
+
+      const inputPortsIds = blockSpec.inputPorts.map((p) => p.id);
+
+      for (const key in this.wiresByOutputPort) {
+        this.wiresByOutputPort[key] = this.wiresByOutputPort[key].filter((w) => !inputPortsIds.includes(w.inputPort));
+      }
+      delete this.blocksById[id];
+      this.blocks = this.blocks.filter((b) => b.id !== id);
     });
   }
 
   public moveBlock(id: string, x: number, y: number) {
-    const existingBlock = this.blocks.find((n) => n.id === id);
-    if (existingBlock) {
+    const block = this.blocksById[id];
+    if (!block) return;
+    if (block) {
       this.updateState(() => {
-        existingBlock.move(x, y);
+        block.move(x, y);
         // Move to the end of array to stack on top of other blocks in UI
         const newBlocks = this.blocks.filter((n) => n.id !== id);
-        newBlocks.push(existingBlock);
+        newBlocks.push(block);
         this.blocks = newBlocks;
       });
     }
@@ -169,13 +167,14 @@ export default class GraphEngine {
   }
 
   public connectPorts(outputPort: string, inputPort: string) {
+    console.log('connectPorts', { outputPort, inputPort });
     const existingWire = getWire(this.serialize(), inputPort, outputPort);
-    if (existingWire) {
-      return;
-    }
-
+    if (existingWire) return;
     this.updateState(() => {
-      this.wires.push({
+      if (!this.wiresByOutputPort[outputPort]) {
+        this.wiresByOutputPort[outputPort] = [];
+      }
+      this.wiresByOutputPort[outputPort].push({
         id: uuid(),
         inputPort: inputPort,
         outputPort: outputPort,
@@ -186,16 +185,14 @@ export default class GraphEngine {
   }
 
   public deleteWire(id: string) {
-    const existingWire = this.wires.find((w) => w.id === id);
-
-    if (!existingWire) return;
-
     this.updateState(() => {
-      this.wires = this.wires.filter((w) => w.id !== id);
+      for (const key in this.wiresByOutputPort) {
+        this.wiresByOutputPort[key] = this.wiresByOutputPort[key].filter((w) => w.id !== id);
+      }
     });
   }
 
   public getBlock(id: string): Block | undefined {
-    return this.blocks.find((b) => b.id === id);
+    return this.blocksById[id];
   }
 }
