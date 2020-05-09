@@ -23,10 +23,6 @@ class Block {
     this.spec.y = y;
   }
 
-  protected stateChanged() {
-    this.emitter.emit('state-changed');
-  }
-
   receive(portId: string, payload: any) {
     // do nothing
   }

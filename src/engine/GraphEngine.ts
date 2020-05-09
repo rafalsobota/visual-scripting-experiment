@@ -105,7 +105,6 @@ export default class GraphEngine {
         this.blocks.push(newInstance);
 
         newInstance.emitter.on('event', (e) => this.receiveEvent(e));
-        newInstance.emitter.on('state-changed', () => this.receiveStateChanged());
 
         console.log(`Creating ${name} of type ${type} at (${x},${y})`);
       });
@@ -125,12 +124,6 @@ export default class GraphEngine {
           block?.receive(w.inputPort, payload);
         }
       });
-  }
-
-  private receiveStateChanged() {
-    this.updateState(() => {
-      // only rerender
-    });
   }
 
   public deleteBlock(id: string) {
