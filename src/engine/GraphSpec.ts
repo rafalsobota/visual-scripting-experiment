@@ -18,8 +18,8 @@ export interface BlockSpec {
 
 export interface PortSpec {
   id?: string; // GUID
+  name: string; // output ports for particular Block have to be uniq
   payloadType: 'string' | 'boolean' | 'number';
-  name: string;
   x?: number;
   y?: number;
 }
@@ -28,4 +28,8 @@ export interface WireSpec {
   id: string; // GUID
   outputPort: string;
   inputPort: string;
+  // inputBlockId: string;
+  // inputPortName: string;
+  // outputBlockId: string;
+  // outputPortName: string;
 }

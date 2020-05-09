@@ -1,17 +1,24 @@
 import { BlockSpec } from './GraphSpec';
-import { EventEmitter } from 'events';
+
+export type Send = (portName: string, payload: any) => void;
 
 class Block {
   protected spec: BlockSpec;
-  public emitter: EventEmitter;
+  protected send: Send;
 
   public get id(): string {
     return this.spec.id;
   }
 
-  constructor(spec: BlockSpec) {
+  // called by engine
+  constructor(spec: BlockSpec, send: Send) {
     this.spec = spec;
-    this.emitter = new EventEmitter();
+    this.send = send;
+    this.start();
+  }
+
+  start(): void {
+    // override
   }
 
   serialize(): BlockSpec {
@@ -23,8 +30,8 @@ class Block {
     this.spec.y = y;
   }
 
-  receive(portId: string, payload: any) {
-    // do nothing
+  receive(portName: string, payload: any): void {
+    // override;
   }
 }
 

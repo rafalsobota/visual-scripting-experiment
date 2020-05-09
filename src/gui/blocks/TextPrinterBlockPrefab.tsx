@@ -1,7 +1,7 @@
 import React from 'react';
 import BlockPrefab from '../../engine/BlockPrefab';
 import { BlockSpec } from '../../engine/GraphSpec';
-import Block from '../../engine/Block';
+import Block, { Send } from '../../engine/Block';
 import TextPrinterBlock from './TextPrinterBlock';
 import TextPrinterBlockLogic from './TextPrinterBlockLogic';
 
@@ -22,8 +22,8 @@ const TextPrinterBlockPrefab: BlockPrefab = {
   render(spec: BlockSpec) {
     return <TextPrinterBlock id={spec.id}></TextPrinterBlock>;
   },
-  materialize(spec: BlockSpec): Block {
-    return new TextPrinterBlockLogic(spec);
+  materialize(spec: BlockSpec, send: Send): Block {
+    return new TextPrinterBlockLogic(spec, send);
   },
 };
 
