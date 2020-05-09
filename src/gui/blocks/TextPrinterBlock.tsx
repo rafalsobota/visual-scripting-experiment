@@ -1,10 +1,11 @@
-import React, { useEffect, useContext, useRef } from 'react';
+import React, { useEffect, useContext, useRef, useState } from 'react';
 import { makeStyles, Theme, createStyles } from '@material-ui/core/styles';
 import Paper from '@material-ui/core/Paper';
 import Block from './Block';
 import GraphContext from '../GraphContext';
 import { getBlock, getPortWires } from '../../engine/selectors';
 import EngineContext from '../EngineContext';
+import TextPrinterBlockLogic from './TextPrinterBlockLogic';
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -47,6 +48,9 @@ const useStyles = makeStyles((theme: Theme) =>
       paddingLeft: 4,
       paddingRight: 4,
     },
+    actions: {
+      padding: 4,
+    },
   }),
 );
 
@@ -64,6 +68,8 @@ export default function TextPrinterBlock(props: Props) {
   const inputPort = currentBlock.inputPorts[0]!;
   const portActive = getPortWires(graph, inputPort.id!).length > 0;
 
+  const blockLogic = engine.getBlock(props.id) as TextPrinterBlockLogic;
+
   useEffect(() => {
     // componentDidMount
     const portRef: any = inputRef.current;
@@ -73,6 +79,16 @@ export default function TextPrinterBlock(props: Props) {
     const portId = currentBlock.inputPorts[0].id;
     engine.setPortPosition(portId!, x, y);
   });
+
+  const [logState, setLogState] = useState('');
+
+  useEffect(() => {
+    function listener(newState: string) {
+      setLogState(newState);
+    }
+    blockLogic.subscribe(listener);
+    return () => blockLogic.unsubscribe(listener);
+  }, [blockLogic]);
 
   return (
     <Block id={props.id}>
@@ -115,6 +131,7 @@ export default function TextPrinterBlock(props: Props) {
             <div className={classes.portName}>in</div>
           </div>
         </div>
+        <div className={classes.actions}>{logState}</div>
       </Paper>
     </Block>
   );

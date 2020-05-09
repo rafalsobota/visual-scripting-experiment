@@ -5,12 +5,14 @@ import Block from './Block';
 import GraphContext from '../GraphContext';
 import { getBlock, getPortWires } from '../../engine/selectors';
 import EngineContext from '../EngineContext';
+import { Button, TextField } from '@material-ui/core';
+import TextEmitterBlockLogic from './TextEmitterBlockLogic';
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
     root: {
       width: 150,
-      height: 150,
+      // height: 150,
     },
     title: {
       padding: 4,
@@ -47,6 +49,9 @@ const useStyles = makeStyles((theme: Theme) =>
       paddingLeft: 4,
       paddingRight: 4,
     },
+    actions: {
+      padding: 4,
+    },
   }),
 );
 
@@ -65,6 +70,8 @@ export default function TextEmitterBlock(props: Props) {
   const outputPortType = currentBlock.outputPorts[0].payloadType!;
 
   const portActive = getPortWires(graph, outputPortId).length > 0;
+
+  const logicBlock: TextEmitterBlockLogic = engine.getBlock(props.id)! as TextEmitterBlockLogic;
 
   useEffect(() => {
     // componentDidMount
@@ -92,6 +99,23 @@ export default function TextEmitterBlock(props: Props) {
             <div className={classes.portName}>out</div>
             <div className={portActive ? classes.portIconActive : classes.portIcon} ref={outputRef}></div>
           </div>
+        </div>
+        <div className={classes.actions}>
+          <TextField
+            id="value"
+            variant="outlined"
+            label="Value"
+            onChange={(e) => {
+              logicBlock.setValue(e.target.value);
+            }}
+          />
+          <Button
+            onClick={(e) => {
+              logicBlock.emit();
+            }}
+          >
+            Emit
+          </Button>
         </div>
       </Paper>
     </Block>
