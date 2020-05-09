@@ -1,12 +1,12 @@
 import React from 'react';
 import BlockPrefab from '../../engine/BlockPrefab';
 import { BlockSpec } from '../../engine/GraphSpec';
-import EmptyBlock from './EmptyBlock';
 import Block from '../../engine/Block';
+import TextPrinterBlock from './TextPrinterBlock';
 
-const EmptyBlockPrefab: BlockPrefab = {
-  type: 'empty',
-  name: 'Empty Block',
+const TextPrinterBlockPrefab: BlockPrefab = {
+  type: 'text-printer',
+  name: 'Text Printer',
   newSpec(id: string, type: string, name: string, x: number, y: number): BlockSpec {
     return {
       id,
@@ -14,16 +14,16 @@ const EmptyBlockPrefab: BlockPrefab = {
       y,
       name,
       type,
-      inputPorts: [],
       outputPorts: [],
+      inputPorts: [{ name: 'in', payloadType: 'string' }],
     };
   },
   render(spec: BlockSpec) {
-    return <EmptyBlock id={spec.id}></EmptyBlock>;
+    return <TextPrinterBlock id={spec.id}></TextPrinterBlock>;
   },
   materialize(spec: BlockSpec): Block {
     return new Block(spec);
   },
 };
 
-export default EmptyBlockPrefab;
+export default TextPrinterBlockPrefab;

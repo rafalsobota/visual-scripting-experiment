@@ -1,4 +1,4 @@
 export default interface BlockTemplate {
-    type: string
-    name: string
+  type: string;
+  name: string;
 }

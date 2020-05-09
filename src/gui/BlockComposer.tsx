@@ -6,12 +6,12 @@ import { Popover } from '@material-ui/core';
 import BlockPrefab from '../engine/BlockPrefab';
 
 export default function BlockComposer(props: {
-  blocksPrefabs: BlockPrefab[],
-  onClick: (blockTemplate: BlockPrefab) => void,
-  open: boolean,
-  onClose: () => void,
-  x: number,
-  y: number
+  blocksPrefabs: BlockPrefab[];
+  onClick: (blockTemplate: BlockPrefab) => void;
+  open: boolean;
+  onClose: () => void;
+  x: number;
+  y: number;
 }) {
   return (
     <Popover
@@ -29,11 +29,11 @@ export default function BlockComposer(props: {
       onClose={props.onClose}
     >
       <List component="nav">
-        {props.blocksPrefabs.map((block) =>
+        {props.blocksPrefabs.map((block) => (
           <ListItem button key={block.type} onClick={() => props.onClick(block)}>
             <ListItemText primary={block.name} />
           </ListItem>
-        )}
+        ))}
       </List>
     </Popover>
   );
