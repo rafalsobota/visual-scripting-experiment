@@ -4,6 +4,7 @@ import GraphContext from '../GraphContext';
 import { getBlock } from '../../engine/selectors';
 import EngineContext from '../EngineContext';
 import { Popover, List, ListItem, ListItemText } from '@material-ui/core';
+import BlockPortsWrapper from './BlockPortsWrapper';
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -18,7 +19,7 @@ const useStyles = makeStyles((theme: Theme) =>
 
 interface Props {
   id: string;
-  children: any;
+  children?: any;
 }
 
 export default function Block(props: Props) {
@@ -60,7 +61,7 @@ export default function Block(props: Props) {
         e.stopPropagation();
       }}
     >
-      {props.children}
+      <BlockPortsWrapper id={props.id}>{props.children}</BlockPortsWrapper>
       <Popover
         anchorReference="anchorPosition"
         anchorPosition={{ top: contextMenuState.y, left: contextMenuState.x }}

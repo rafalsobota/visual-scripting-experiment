@@ -1,123 +1,45 @@
-import React, { useEffect, useContext, useRef } from 'react';
-import { makeStyles, Theme, createStyles } from '@material-ui/core/styles';
-import Paper from '@material-ui/core/Paper';
+import React, { useContext } from 'react';
 import Block from './Block';
-import GraphContext from '../GraphContext';
-import { getBlock, getPortWires } from '../../engine/selectors';
 import EngineContext from '../EngineContext';
-import { Button, TextField } from '@material-ui/core';
+import { Button, TextField, createStyles, makeStyles } from '@material-ui/core';
 import TextEmitterBlockLogic from './TextEmitterBlockLogic';
 
-const useStyles = makeStyles((theme: Theme) =>
+const useStyles = makeStyles(() =>
   createStyles({
-    root: {
-      width: 150,
-      // height: 150,
-    },
-    title: {
-      padding: 4,
-      height: 30,
-    },
-    portIcon: {
-      margin: 5,
-      width: 10,
-      height: 10,
-      borderRadius: 5,
-      borderColor: theme.palette.primary.main,
-      borderWidth: 2,
-      borderStyle: 'solid',
-    },
-    portIconActive: {
-      backgroundColor: theme.palette.primary.main,
-      margin: 5,
-      width: 10,
-      height: 10,
-      borderRadius: 5,
-    },
-    main: {
-      display: 'flex',
-      justifyContent: 'flex-end',
-    },
-    port: {
-      '&:hover': {
-        background: '#eee',
-        cursor: 'pointer',
-      },
-      display: 'flex',
-    },
-    portName: {
-      paddingLeft: 4,
-      paddingRight: 4,
-    },
     actions: {
       padding: 4,
     },
   }),
 );
 
-interface Props {
+interface TextEmitterBlockProps {
   id: string;
 }
 
-export default function TextEmitterBlock(props: Props) {
-  const classes = useStyles(props);
-  const graph = useContext(GraphContext);
+export default function TextEmitterBlock({ id }: TextEmitterBlockProps) {
+  const classes = useStyles();
   const engine = useContext(EngineContext);
-  const currentBlock = getBlock(graph, props.id)!;
-  const name = currentBlock.name;
-  const outputRef = useRef(null);
-  const outputPortId = currentBlock.outputPorts[0].id!;
-  const outputPortType = currentBlock.outputPorts[0].payloadType!;
-
-  const portActive = getPortWires(graph, outputPortId).length > 0;
-
-  const logicBlock: TextEmitterBlockLogic = engine.getBlock(props.id)! as TextEmitterBlockLogic;
-
-  useEffect(() => {
-    // componentDidMount
-    const portRef: any = outputRef.current;
-    const positionRect = portRef.getBoundingClientRect();
-    const x = Math.round(positionRect.x + positionRect.width / 2);
-    const y = Math.round(positionRect.y + positionRect.height / 2);
-    engine.setPortPosition(outputPortId, x, y);
-  });
+  const instance: TextEmitterBlockLogic = engine.getBlock(id)! as TextEmitterBlockLogic;
 
   return (
-    <Block id={props.id}>
-      <Paper className={classes.root} draggable>
-        <div className={classes.title}>{name}</div>
-        <div className={classes.main}>
-          <div
-            className={classes.port}
-            draggable
-            onDragStart={(e) => {
-              const data = JSON.stringify({ outputPortId, payloadType: outputPortType });
-              e.dataTransfer.setData('Text', data);
-              e.stopPropagation();
-            }}
-          >
-            <div className={classes.portName}>out</div>
-            <div className={portActive ? classes.portIconActive : classes.portIcon} ref={outputRef}></div>
-          </div>
-        </div>
-        <div className={classes.actions}>
-          <TextField
-            id="value"
-            variant="outlined"
-            label="Value"
-            onChange={(e) => {
-              logicBlock.setValue(e.target.value);
-            }}
-          />
-          <Button
-            onClick={(e) => {
-              logicBlock.emit();
-            }}
-          >
-            Emit
-          </Button>
-        </div>
-      </Paper>
+    <Block id={id}>
+      <div className={classes.actions}>
+        <TextField
+          id="value"
+          variant="outlined"
+          label="Value"
+          onChange={(e) => {
+            instance.setValue(e.target.value);
+          }}
+        />
+        <Button
+          onClick={() => {
+            instance.emit();
+          }}
+        >
+          Emit
+        </Button>
+      </div>
     </Block>
   );
 }
