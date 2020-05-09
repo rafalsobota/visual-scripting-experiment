@@ -27,7 +27,6 @@ const useStyles = makeStyles((theme: Theme) =>
     },
     wire: {
       stroke: theme.palette.primary.main,
-      opacity: 0.5,
       strokeWidth: 2,
       fill: 'none',
       cursor: 'pointer',
@@ -65,6 +64,11 @@ function Canvas(props: Props) {
   const [contextMenuState, setContextMenuState] = useState({ open: false, x: 0, y: 0 });
   const [wireContextMenuState, setWireContextMenuState] = useState({ open: false, x: 0, y: 0, id: '' });
 
+  function closeContextMenus() {
+    setContextMenuState({ ...contextMenuState, open: false });
+    setWireContextMenuState({ ...wireContextMenuState, open: false });
+  }
+
   return (
     <div
       className={classes.backgroundLayer}
@@ -82,8 +86,8 @@ function Canvas(props: Props) {
           if (e.shiftKey) {
             return;
           }
-          if (contextMenuState.open) {
-            setContextMenuState({ open: false, x: e.pageX, y: e.pageY });
+          if (contextMenuState.open || wireContextMenuState.open) {
+            closeContextMenus();
           } else {
             setContextMenuState({ open: true, x: e.pageX, y: e.pageY });
           }
@@ -122,8 +126,8 @@ function Canvas(props: Props) {
                 if (e.shiftKey) {
                   return;
                 }
-                if (wireContextMenuState.open) {
-                  setWireContextMenuState({ open: false, x: e.pageX, y: e.pageY, id: w.id });
+                if (wireContextMenuState.open || contextMenuState.open) {
+                  closeContextMenus();
                 } else {
                   setWireContextMenuState({ open: true, x: e.pageX, y: e.pageY, id: w.id });
                 }
