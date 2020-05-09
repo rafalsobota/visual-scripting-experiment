@@ -25,7 +25,7 @@ export interface PortSpec {
 }
 
 export interface WireSpec {
-  id?: string; // GUID
+  id: string; // GUID
   outputPort: string;
   inputPort: string;
 }

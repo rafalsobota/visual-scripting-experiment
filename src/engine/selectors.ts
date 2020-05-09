@@ -16,11 +16,11 @@ export function getWire(spec: GraphSpec, input: string, output: string): WireSpe
 export function getWireLines(spec: GraphSpec): WireLine[] {
   const wireLines: WireLine[] = [];
 
-  spec.wires.forEach(({ inputPort, outputPort }) => {
+  spec.wires.forEach(({ id, inputPort, outputPort }) => {
     const input = getPort(spec, inputPort);
     const output = getPort(spec, outputPort);
-    if (input?.x && input.y && output?.x && output?.y) {
-      wireLines.push({ x1: output.x, y1: output.y, x2: input.x, y2: input.y });
+    if (input?.x && input?.y && output?.x && output?.y) {
+      wireLines.push({ id, x1: output.x, y1: output.y, x2: input.x, y2: input.y });
     }
   });
   return wireLines;

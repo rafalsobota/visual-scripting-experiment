@@ -5,6 +5,7 @@ import EngineContext from './EngineContext';
 import GraphContext from './GraphContext';
 import { getWireLines } from '../engine/selectors';
 import WireLine from '../engine/WireLine';
+import WireContextMenu from './WireContextMenu';
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -26,12 +27,20 @@ const useStyles = makeStyles((theme: Theme) =>
     },
     wire: {
       stroke: theme.palette.primary.main,
+      opacity: 0.5,
       strokeWidth: 2,
       fill: 'none',
       cursor: 'pointer',
       '&:hover': {
+        stroke: theme.palette.primary.main,
+        opacity: 1,
         strokeWidth: 4,
       },
+    },
+    activeWire: {
+      stroke: theme.palette.primary.main,
+      opacity: 1,
+      strokeWidth: 4,
     },
     wiresSVG: {
       position: 'absolute',
@@ -54,6 +63,7 @@ function Canvas(props: Props) {
   const graph = useContext(GraphContext);
   const engine = useContext(EngineContext);
   const [contextMenuState, setContextMenuState] = useState({ open: false, x: 0, y: 0 });
+  const [wireContextMenuState, setWireContextMenuState] = useState({ open: false, x: 0, y: 0, id: '' });
 
   return (
     <div
@@ -100,11 +110,25 @@ function Canvas(props: Props) {
         <svg xmlns="http://www.w3.org/2000/svg" className={classes.wiresSVG}>
           {getWireLines(graph).map((w) => (
             <polyline
-              key={wireLineToSVGPolylinePoints(w)}
+              key={w.id}
               points={wireLineToSVGPolylinePoints(w)}
-              className={classes.wire}
+              className={`${classes.wire} ${
+                wireContextMenuState.open && wireContextMenuState.id === w.id ? classes.activeWire : ''
+              }`}
               onClick={(e) => {
                 console.log(e);
+              }}
+              onContextMenu={(e) => {
+                if (e.shiftKey) {
+                  return;
+                }
+                if (wireContextMenuState.open) {
+                  setWireContextMenuState({ open: false, x: e.pageX, y: e.pageY, id: w.id });
+                } else {
+                  setWireContextMenuState({ open: true, x: e.pageX, y: e.pageY, id: w.id });
+                }
+                e.preventDefault();
+                e.stopPropagation();
               }}
             />
           ))}
@@ -121,6 +145,15 @@ function Canvas(props: Props) {
           open={contextMenuState.open}
           x={contextMenuState.x}
           y={contextMenuState.y}
+        />
+        <WireContextMenu
+          id={wireContextMenuState.id}
+          open={wireContextMenuState.open}
+          x={wireContextMenuState.x}
+          y={wireContextMenuState.y}
+          onClose={() => {
+            setWireContextMenuState({ ...wireContextMenuState, open: false });
+          }}
         />
         {props.children}
       </div>

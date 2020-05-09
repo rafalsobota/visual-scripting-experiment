@@ -3,7 +3,6 @@ import green from '@material-ui/core/colors/green';
 import blue from '@material-ui/core/colors/blue';
 
 const theme = createMuiTheme({
-
   palette: {
     primary: blue,
     secondary: green,
@@ -11,7 +10,7 @@ const theme = createMuiTheme({
   },
 
   // Dense - https://material-ui.com/customization/density/
-  
+
   props: {
     MuiButton: {
       size: 'small',

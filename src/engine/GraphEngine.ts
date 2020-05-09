@@ -158,4 +158,14 @@ export default class GraphEngine {
 
     console.log(`connected ${inputPort} -> ${outputPort}`);
   }
+
+  public deleteWire(id: string) {
+    const existingWire = this.wires.find((w) => w.id === id);
+
+    if (!existingWire) return;
+
+    this.updateState(() => {
+      this.wires = this.wires.filter((w) => w.id !== id);
+    });
+  }
 }
