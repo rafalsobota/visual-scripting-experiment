@@ -3,7 +3,7 @@ import { makeStyles, Theme, createStyles } from '@material-ui/core/styles';
 import GraphContext from '../GraphContext';
 import { getBlock } from '../../engine/selectors';
 import EngineContext from '../EngineContext';
-import { Popover, List, ListItem, ListItemText } from '@material-ui/core';
+import { Popover, List, ListItem, ListItemText, Divider } from '@material-ui/core';
 import BlockPortsWrapper from './BlockPortsWrapper';
 
 const useStyles = makeStyles((theme: Theme) =>
@@ -79,6 +79,15 @@ export default function Block(props: Props) {
         }}
       >
         <List component="nav">
+          <ListItem
+            button
+            onClick={() => {
+              engine.createBlock(engine.getBlock(props.id)!.serialize().type, x + 10, y + 30);
+              setContextMenuState({ ...contextMenuState, open: false });
+            }}
+          >
+            <ListItemText primary="Dupliacte" />
+          </ListItem>
           <ListItem
             button
             onClick={() => {

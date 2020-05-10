@@ -8,7 +8,7 @@ import { Grid } from '@material-ui/core';
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
     root: {
-      width: 150,
+      width: 160,
       minHeight: 100,
     },
     title: {

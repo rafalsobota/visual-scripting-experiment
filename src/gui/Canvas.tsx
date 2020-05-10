@@ -36,6 +36,17 @@ const useStyles = makeStyles((theme: Theme) =>
         strokeWidth: 4,
       },
     },
+    wireBackward: {
+      stroke: theme.palette.primary.main,
+      strokeWidth: 1,
+      fill: 'none',
+      cursor: 'pointer',
+      '&:hover': {
+        stroke: theme.palette.primary.main,
+        opacity: 1,
+        strokeWidth: 4,
+      },
+    },
     activeWire: {
       stroke: theme.palette.primary.main,
       opacity: 1,
@@ -112,27 +123,31 @@ function Canvas(props: Props) {
         }}
       >
         <svg xmlns="http://www.w3.org/2000/svg" className={classes.wiresSVG}>
-          {getWireLines(graph).map((w) => (
-            <polyline
-              key={w.id}
-              points={wireLineToSVGPolylinePoints(w)}
-              className={`${classes.wire} ${
-                wireContextMenuState.open && wireContextMenuState.id === w.id ? classes.activeWire : ''
-              }`}
-              onContextMenu={(e) => {
-                if (e.shiftKey) {
-                  return;
-                }
-                if (wireContextMenuState.open || contextMenuState.open) {
-                  closeContextMenus();
-                } else {
-                  setWireContextMenuState({ open: true, x: e.pageX, y: e.pageY, id: w.id });
-                }
-                e.preventDefault();
-                e.stopPropagation();
-              }}
-            />
-          ))}
+          {getWireLines(graph).map((w) => {
+            const classNames = `${w.x1 < w.x2 ? classes.wire : classes.wireBackward} ${
+              wireContextMenuState.open && wireContextMenuState.id === w.id ? classes.activeWire : ''
+            }`;
+
+            return (
+              <polyline
+                key={w.id}
+                points={wireLineToSVGPolylinePoints(w)}
+                className={classNames}
+                onContextMenu={(e) => {
+                  if (e.shiftKey) {
+                    return;
+                  }
+                  if (wireContextMenuState.open || contextMenuState.open) {
+                    closeContextMenus();
+                  } else {
+                    setWireContextMenuState({ open: true, x: e.pageX, y: e.pageY, id: w.id });
+                  }
+                  e.preventDefault();
+                  e.stopPropagation();
+                }}
+              />
+            );
+          })}
         </svg>
         <BlockComposer
           blocksPrefabs={engine.blocksPrefabs}
