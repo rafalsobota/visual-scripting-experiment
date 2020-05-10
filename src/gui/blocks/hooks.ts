@@ -1,7 +1,10 @@
 import { BlockSpec, PortSpec } from '../../engine/GraphSpec';
-import { useContext } from 'react';
+import { useContext, useState, useEffect } from 'react';
 import GraphContext from '../GraphContext';
 import { getBlock, getPortWires } from '../../engine/selectors';
+import EngineContext from '../EngineContext';
+import Behavior from '../../engine/Behavior';
+import Observable from '../../engine/Observable';
 
 export function useBlock(id: string): BlockSpec | undefined {
   const graph = useContext(GraphContext);
@@ -31,4 +34,23 @@ export function useBlockUtils(blockId: string): any {
       return getPortWires(graph, port.id!).length > 0;
     },
   };
+}
+
+export function useBehavior<T extends Behavior>(id: string): T {
+  const engine = useContext(EngineContext);
+  return engine.getBlock(id)! as T;
+}
+
+export function useObservable<T>(observable: Observable<T>): T | undefined {
+  const [state, setState] = useState<T>();
+
+  useEffect(() => {
+    function listener(newState: T) {
+      setState(newState);
+    }
+    observable.subscribe(listener);
+    return () => observable.unsubscribe(listener);
+  }, [observable]);
+
+  return state;
 }

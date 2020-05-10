@@ -1,7 +1,7 @@
 import React from 'react';
 import BlockPrefab from '../../engine/BlockPrefab';
 import { BlockSpec } from '../../engine/GraphSpec';
-import Block, { Send } from '../../engine/Block';
+import Behavior, { Send } from '../../engine/Behavior';
 import TextEmitterBlock from './TextEmitterBlock';
 import TextEmitterBlockLogic from './TextEmitterBlockLogic';
 
@@ -22,7 +22,7 @@ const TextEmitterBlockPrefab: BlockPrefab = {
   render(spec: BlockSpec) {
     return <TextEmitterBlock id={spec.id}></TextEmitterBlock>;
   },
-  materialize(spec: BlockSpec, send: Send): Block {
+  materialize(spec: BlockSpec, send: Send): Behavior {
     return new TextEmitterBlockLogic(spec, send);
   },
 };

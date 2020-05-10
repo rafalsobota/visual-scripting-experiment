@@ -19,7 +19,7 @@ export interface BlockSpec {
 export interface PortSpec {
   id?: string; // GUID
   name: string; // output ports for particular Block have to be uniq
-  payloadType: 'string' | 'boolean' | 'number';
+  payloadType: 'string' | 'boolean' | 'number' | 'widget';
   x?: number;
   y?: number;
 }

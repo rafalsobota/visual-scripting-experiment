@@ -9,10 +9,10 @@ const useStyles = makeStyles((theme: Theme) =>
   createStyles({
     root: {
       width: 150,
-      height: 150,
+      minHeight: 100,
     },
     title: {
-      padding: 4,
+      paddingLeft: 4,
       height: 30,
     },
     portIcon: {
@@ -72,7 +72,6 @@ export default function BlockPortsWrapper({ id, children }: BlockPortsWrapperPro
     portsIds.forEach((id: string) => {
       const portElement = portsRef.current[id]!.current as HTMLElement;
       if (portElement) {
-        console.log(portsRef.current, portElement);
         const positionRect = portElement.getBoundingClientRect();
         const x = Math.round(positionRect.x + positionRect.width / 2);
         const y = Math.round(positionRect.y + positionRect.height / 2);
@@ -111,7 +110,7 @@ export default function BlockPortsWrapper({ id, children }: BlockPortsWrapperPro
                   className={isInputPortWired(inputPort.name) ? classes.portIconActive : classes.portIcon}
                   ref={portsRef.current[inputPort.id!]}
                 ></div>
-                <div className={classes.portName}>in</div>
+                <div className={classes.portName}>{inputPort.name}</div>
               </div>
             ))}
           </Grid>

@@ -1,6 +1,6 @@
-import Block from '../../engine/Block';
+import Behavior from '../../engine/Behavior';
 
-export default class TextEmitterBlockLogic extends Block {
+export default class TextEmitterBlockLogic extends Behavior {
   value = '';
 
   setValue(value: string) {

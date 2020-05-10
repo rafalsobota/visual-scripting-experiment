@@ -1,7 +1,7 @@
-import Block from '../../engine/Block';
+import Behavior from '../../engine/Behavior';
 import { EventEmitter } from 'events';
 
-export default class TextPrinterBlockLogic extends Block {
+export default class TextPrinterBlockLogic extends Behavior {
   widgetEmitter: EventEmitter = new EventEmitter();
 
   public subscribe(f: (value: string) => void) {

@@ -2,7 +2,7 @@ import React from 'react';
 import BlockPrefab from '../../engine/BlockPrefab';
 import { BlockSpec } from '../../engine/GraphSpec';
 import EmptyBlock from './EmptyBlock';
-import Block, { Send } from '../../engine/Block';
+import Behavior, { Send } from '../../engine/Behavior';
 
 const EmptyBlockPrefab: BlockPrefab = {
   type: 'empty',
@@ -21,8 +21,8 @@ const EmptyBlockPrefab: BlockPrefab = {
   render(spec: BlockSpec) {
     return <EmptyBlock id={spec.id}></EmptyBlock>;
   },
-  materialize(spec: BlockSpec, send: Send): Block {
-    return new Block(spec, send);
+  materialize(spec: BlockSpec, send: Send): Behavior {
+    return new Behavior(spec, send);
   },
 };
 

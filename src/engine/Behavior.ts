@@ -2,7 +2,7 @@ import { BlockSpec } from './GraphSpec';
 
 export type Send = (portName: string, payload: any) => void;
 
-class Block {
+class Behavior {
   protected spec: BlockSpec;
   protected send: Send;
 
@@ -35,4 +35,4 @@ class Block {
   }
 }
 
-export default Block;
+export default Behavior;

@@ -1,8 +1,8 @@
-import React, { useContext } from 'react';
+import React from 'react';
 import Block from './Block';
-import EngineContext from '../EngineContext';
 import { Button, TextField, createStyles, makeStyles } from '@material-ui/core';
 import TextEmitterBlockLogic from './TextEmitterBlockLogic';
+import { useBehavior } from './hooks';
 
 const useStyles = makeStyles(() =>
   createStyles({
@@ -18,8 +18,7 @@ interface TextEmitterBlockProps {
 
 export default function TextEmitterBlock({ id }: TextEmitterBlockProps) {
   const classes = useStyles();
-  const engine = useContext(EngineContext);
-  const instance: TextEmitterBlockLogic = engine.getBlock(id)! as TextEmitterBlockLogic;
+  const behavior = useBehavior<TextEmitterBlockLogic>(id);
 
   return (
     <Block id={id}>
@@ -29,12 +28,14 @@ export default function TextEmitterBlock({ id }: TextEmitterBlockProps) {
           variant="outlined"
           label="Value"
           onChange={(e) => {
-            instance.setValue(e.target.value);
+            behavior.setValue(e.target.value);
           }}
         />
         <Button
+          fullWidth
+          color="primary"
           onClick={() => {
-            instance.emit();
+            behavior.emit();
           }}
         >
           Emit

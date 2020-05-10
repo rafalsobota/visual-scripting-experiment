@@ -2,14 +2,14 @@ import { GraphSpec, BlockSpec, WireSpec } from './GraphSpec';
 import { EventEmitter } from 'events';
 import { v4 as uuid } from 'uuid';
 import BlockPrefab from './BlockPrefab';
-import Block from './Block';
+import Behavior from './Behavior';
 import { getPort, getWire } from './selectors';
 
 export default class GraphEngine {
   private stateChangeEmitter = new EventEmitter();
 
-  private blocks: Block[] = []; // dla kolejności wyświetlania jednego na drugim
-  private blocksById: { [id: string]: Block } = {};
+  private blocks: Behavior[] = []; // dla kolejności wyświetlania jednego na drugim
+  private blocksById: { [id: string]: Behavior } = {};
   private wiresByOutputPort: { [inputPort: string]: WireSpec[] } = {}; // do szukania odbiorcy eventu
 
   private _blocksPrefabs: BlockPrefab[] = [];
@@ -167,7 +167,6 @@ export default class GraphEngine {
   }
 
   public connectPorts(outputPort: string, inputPort: string) {
-    console.log('connectPorts', { outputPort, inputPort });
     const existingWire = getWire(this.serialize(), inputPort, outputPort);
     if (existingWire) return;
     this.updateState(() => {
@@ -192,7 +191,7 @@ export default class GraphEngine {
     });
   }
 
-  public getBlock(id: string): Block | undefined {
+  public getBlock(id: string): Behavior | undefined {
     return this.blocksById[id];
   }
 }

@@ -119,9 +119,6 @@ function Canvas(props: Props) {
               className={`${classes.wire} ${
                 wireContextMenuState.open && wireContextMenuState.id === w.id ? classes.activeWire : ''
               }`}
-              onClick={(e) => {
-                console.log(e);
-              }}
               onContextMenu={(e) => {
                 if (e.shiftKey) {
                   return;
