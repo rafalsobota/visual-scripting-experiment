@@ -12,8 +12,8 @@ export interface BlockSpec {
   settings?: any; // place for block extensions
   x: number;
   y: number;
-  // width: number
-  // height: number
+  width?: number;
+  height?: number;
 }
 
 export interface PortSpec {

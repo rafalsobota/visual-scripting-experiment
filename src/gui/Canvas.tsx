@@ -6,6 +6,8 @@ import GraphContext from './GraphContext';
 import { getWireLines } from '../engine/selectors';
 import WireLine from '../engine/WireLine';
 import WireContextMenu from './WireContextMenu';
+import { WirePath } from '../engine/GraphEngine';
+import green from '@material-ui/core/colors/green';
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -57,6 +59,15 @@ const useStyles = makeStyles((theme: Theme) =>
       width: '100%',
       height: '100%',
     },
+    mesh: {
+      position: 'absolute',
+      backgroundColor: theme.palette.secondary.main,
+      opacity: 0.5,
+      borderStyle: 'solid',
+      borderColor: green[600],
+      borderWidth: 1,
+      // borderColor: 'blue',
+    },
   }),
 );
 
@@ -64,8 +75,10 @@ interface Props {
   children: any;
 }
 
-function wireLineToSVGPolylinePoints(w: WireLine): string {
-  return `${w.x1},${w.y1} ${w.x1 + 20},${w.y1} ${w.x2 - 20},${w.y2} ${w.x2},${w.y2}`;
+function wireLineToSVGPolylinePoints(wirePath: WirePath): string {
+  return wirePath.path.map((p) => `${p.x},${p.y}`).join(' ');
+
+  // return `${w.x1},${w.y1} ${w.x1 + 20},${w.y1} ${w.x2 - 20},${w.y2} ${w.x2},${w.y2}`;
 }
 
 function Canvas(props: Props) {
@@ -122,16 +135,25 @@ function Canvas(props: Props) {
           e.preventDefault();
         }}
       >
+        <div>
+          {engine.navMesh.map((n) => (
+            <div
+              key={`${n.x},${n.y};${n.x2},${n.y2}`}
+              className={classes.mesh}
+              style={{ left: n.x, top: n.y, width: n.x2 - n.x, height: n.y2 - n.y }}
+            />
+          ))}
+        </div>
         <svg xmlns="http://www.w3.org/2000/svg" className={classes.wiresSVG}>
-          {getWireLines(graph).map((w) => {
-            const classNames = `${w.x1 < w.x2 ? classes.wire : classes.wireBackward} ${
-              wireContextMenuState.open && wireContextMenuState.id === w.id ? classes.activeWire : ''
+          {engine.wiresPaths.map((wirePath) => {
+            const classNames = `${classes.wire} ${
+              wireContextMenuState.open && wireContextMenuState.id === wirePath.id ? classes.activeWire : ''
             }`;
 
             return (
               <polyline
-                key={w.id}
-                points={wireLineToSVGPolylinePoints(w)}
+                key={wirePath.id}
+                points={wireLineToSVGPolylinePoints(wirePath)}
                 className={classNames}
                 onContextMenu={(e) => {
                   if (e.shiftKey) {
@@ -140,7 +162,7 @@ function Canvas(props: Props) {
                   if (wireContextMenuState.open || contextMenuState.open) {
                     closeContextMenus();
                   } else {
-                    setWireContextMenuState({ open: true, x: e.pageX, y: e.pageY, id: w.id });
+                    setWireContextMenuState({ open: true, x: e.pageX, y: e.pageY, id: wirePath.id });
                   }
                   e.preventDefault();
                   e.stopPropagation();

@@ -30,6 +30,11 @@ class Behavior {
     this.spec.y = y;
   }
 
+  setSize(width: number, height: number) {
+    this.spec.width = width;
+    this.spec.height = height;
+  }
+
   receive(portName: string, payload: any): void {
     // override;
   }

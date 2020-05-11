@@ -1,9 +1,9 @@
-import React, { useContext, useState } from 'react';
+import React, { useContext, useState, useEffect, useRef } from 'react';
 import { makeStyles, Theme, createStyles } from '@material-ui/core/styles';
 import GraphContext from '../GraphContext';
 import { getBlock } from '../../engine/selectors';
 import EngineContext from '../EngineContext';
-import { Popover, List, ListItem, ListItemText, Divider } from '@material-ui/core';
+import { Popover, List, ListItem, ListItemText } from '@material-ui/core';
 import BlockPortsWrapper from './BlockPortsWrapper';
 
 const useStyles = makeStyles((theme: Theme) =>
@@ -31,8 +31,17 @@ export default function Block(props: Props) {
   const x = getBlock(graph, props.id)!.x;
   const y = getBlock(graph, props.id)!.y;
 
+  const blockRef = useRef(null);
+
+  useEffect(() => {
+    const element = (blockRef.current! as unknown) as HTMLElement;
+    const boundingBox = element.getBoundingClientRect();
+    engine.setBlockSize(props.id, boundingBox.width, boundingBox.height);
+  });
+
   return (
     <div
+      ref={blockRef}
       className={classes.root}
       style={{ left: x, top: y }}
       draggable

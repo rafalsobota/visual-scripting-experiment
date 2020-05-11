@@ -3,7 +3,10 @@ import { EventEmitter } from 'events';
 import { v4 as uuid } from 'uuid';
 import BlockPrefab from './BlockPrefab';
 import Behavior from './Behavior';
-import { getPort, getWire } from './selectors';
+import { getPort, getWire, getWireLines } from './selectors';
+import NavMesh from 'navmesh';
+import WireLine from './WireLine';
+import { createNavMesh, blockSpecToRect, Rect, rectToPointsList, WiresNavMesh } from './WiresMesh';
 
 export default class GraphEngine {
   private stateChangeEmitter = new EventEmitter();
@@ -26,11 +29,13 @@ export default class GraphEngine {
     return this.getPrefab(block.type)?.render(block);
   }
 
-  private updateState(mutator: () => void) {
-    mutator();
+  private updateState(mutator?: () => void) {
+    if (mutator) {
+      mutator();
+    }
     const state = this.serialize();
     this.stateChangeEmitter.emit('stateChanged', state);
-    console.log('state changed', state);
+    console.log('state changed', state, mutator);
   }
 
   public subscribe(f: (state: GraphSpec) => void) {
@@ -107,6 +112,7 @@ export default class GraphEngine {
         this.blocksById[newId] = newInstance;
         this.blocks.push(newInstance);
         console.log(`Creating ${name} of type ${type} at (${x},${y})`);
+        this.scheduleRecalculationOfWires();
       });
     }
   }
@@ -138,6 +144,7 @@ export default class GraphEngine {
       }
       delete this.blocksById[id];
       this.blocks = this.blocks.filter((b) => b.id !== id);
+      this.scheduleRecalculationOfWires();
     });
   }
 
@@ -151,6 +158,7 @@ export default class GraphEngine {
         const newBlocks = this.blocks.filter((n) => n.id !== id);
         newBlocks.push(block);
         this.blocks = newBlocks;
+        this.scheduleRecalculationOfWires();
       });
     }
   }
@@ -159,26 +167,27 @@ export default class GraphEngine {
     const port = getPort(this.serialize(), id);
     if (port) {
       if (port.x === x && port.y === y) return;
-      this.updateState(() => {
-        port.x = x;
-        port.y = y;
-      });
+      console.log('setPortPosition');
+      port.x = x;
+      port.y = y;
+      this.scheduleRecalculationOfWires();
     }
   }
 
   public connectPorts(outputPort: string, inputPort: string) {
     const existingWire = getWire(this.serialize(), inputPort, outputPort);
     if (existingWire) return;
-    this.updateState(() => {
-      if (!this.wiresByOutputPort[outputPort]) {
-        this.wiresByOutputPort[outputPort] = [];
-      }
-      this.wiresByOutputPort[outputPort].push({
-        id: uuid(),
-        inputPort: inputPort,
-        outputPort: outputPort,
-      });
+    // this.updateState(() => {
+    if (!this.wiresByOutputPort[outputPort]) {
+      this.wiresByOutputPort[outputPort] = [];
+    }
+    this.wiresByOutputPort[outputPort].push({
+      id: uuid(),
+      inputPort: inputPort,
+      outputPort: outputPort,
     });
+    this.scheduleRecalculationOfWires();
+    // });
 
     console.log(`connected ${inputPort} -> ${outputPort}`);
   }
@@ -188,10 +197,122 @@ export default class GraphEngine {
       for (const key in this.wiresByOutputPort) {
         this.wiresByOutputPort[key] = this.wiresByOutputPort[key].filter((w) => w.id !== id);
       }
+      this.scheduleRecalculationOfWires();
     });
   }
 
   public getBlock(id: string): Behavior | undefined {
     return this.blocksById[id];
   }
+
+  private needsCalculateWires = false;
+
+  private scheduleRecalculationOfWires() {
+    if (!this.needsCalculateWires) {
+      this.needsCalculateWires = true;
+    }
+    setTimeout(
+      (() => {
+        this.needsCalculateWires = false;
+        this.recalculateWires();
+      }).bind(this),
+      0,
+    );
+  }
+
+  public wiresPaths: WirePath[] = [];
+
+  public navMesh: Rect[] = [];
+
+  private recalculateWires() {
+    console.log('recalculateWires');
+    const meshPolygonPoints: [Point, Point, Point, Point][] = [];
+    this.blocks.forEach((b) => {
+      const spec = b.serialize();
+      if (spec.x && spec.y && spec.width && spec.height) {
+        meshPolygonPoints.push([
+          { x: spec.x - 2, y: spec.y - 2 },
+          { x: spec.x + spec.width + 2, y: spec.y - 2 },
+          { x: spec.x + spec.width + 2, y: spec.y + spec.height + 2 },
+          { x: spec.x - 2, y: spec.y + spec.height + 2 },
+        ]);
+      }
+    });
+
+    console.log('polygons', meshPolygonPoints);
+
+    // const navMesh = new NavMesh(meshPolygonPoints);
+
+    // const blockObstacles = this.blocks.map((b) => blockSpecToRect(b.serialize())).filter((b) => !!b) as Rect[];
+    const canvas = { x: 0, y: 0, x2: 2000, y2: 2000 };
+
+    const wiresNavMesh = new WiresNavMesh(canvas);
+    wiresNavMesh.addBlocks(this.blocks);
+
+    console.log('my nav mesh', this.navMesh);
+
+    // const navMesh = new NavMesh(this.navMesh.map(rectToPointsList));
+
+    const wireLines = getWireLines(this.serialize()).sort((a, b) => {
+      // najpierw te, które prowadzą od lewej do prawej
+      if (a.x1 < a.x2 && b.x1 > b.x2) return -1;
+      if (a.x1 > a.x2 && b.x1 < b.x2) return 1;
+      // najpierw krótsze
+      return this.wirelineDistance(a) < this.wirelineDistance(b) ? -1 : 1;
+    });
+
+    const newWiresPaths: WirePath[] = [];
+
+    wireLines.forEach((w) => {
+      const wirePath = wiresNavMesh.addWire(w.id, { x: w.x1, y: w.y1 }, { x: w.x2, y: w.y2 });
+
+      if (wirePath) {
+        newWiresPaths.push(wirePath);
+      } else {
+        newWiresPaths.push({ id: w.id, path: [] });
+      }
+    });
+
+    this.wiresPaths = newWiresPaths;
+
+    this.navMesh = wiresNavMesh.mesh;
+
+    // console.log('wireLines', newWireLines);
+
+    // console.log(navMesh, navMesh.findPath);
+
+    // this.wiresPaths = wireLines.map((w) => {
+    //   const navMeshPath = navMesh.findPath({ x: w.x1 + 20, y: w.y1 }, { x: w.x2 - 20, y: w.y2 });
+
+    //   console.log('navMeshPath', navMeshPath);
+    //   if (!navMeshPath) {
+    //     console.log('navMeshPath is null');
+    //     return { id: w.id, path: [] };
+    //   }
+
+    //   const path = [{ x: w.x1, y: w.y1 }, ...navMeshPath, { x: w.x2, y: w.y2 }];
+    //   return { id: w.id, path };
+    // });
+    this.updateState();
+  }
+
+  private wirelineDistance(w: WireLine): number {
+    return Math.sqrt(Math.pow(w.y2 - w.y1, 2) + Math.pow(w.x2 - w.x1, 2));
+  }
+
+  public setBlockSize(id: string, width: number, height: number) {
+    const block = this.blocksById[id];
+    if (!block) return;
+    const blockSpec = block.serialize();
+    if (blockSpec.width === width && blockSpec.height === height) return;
+    block.setSize(width, height);
+    console.log('setBlockSize');
+    this.scheduleRecalculationOfWires();
+  }
 }
+
+type Point = { x: number; y: number };
+
+type Line = Point[];
+
+export type WirePath = { id: string; path: Line };

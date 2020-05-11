@@ -5901,6 +5901,10 @@ istanbul-reports@^2.2.6:
   dependencies:
     html-escaper "^2.0.0"
 
+"javascript-astar@github:mikewesthad/javascript-astar":
+  version "0.4.2"
+  resolved "https://codeload.github.com/mikewesthad/javascript-astar/tar.gz/c0304b12861eda334e27f2f15d701c10b296593f"
+
 jest-changed-files@^24.9.0:
   version "24.9.0"
   resolved "https://registry.yarnpkg.com/jest-changed-files/-/jest-changed-files-24.9.0.tgz#08d8c15eb79a7fa3fc98269bc14b451ee82f8039"
@@ -7136,6 +7140,13 @@ natural-compare@^1.4.0:
   version "1.4.0"
   resolved "https://registry.yarnpkg.com/natural-compare/-/natural-compare-1.4.0.tgz#4abebfeed7541f2c27acfb29bdbbd15c8d5ba4f7"
   integrity sha1-Sr6/7tdUHywnrPspvbvRXI1bpPc=
+
+navmesh@^2.0.3:
+  version "2.0.3"
+  resolved "https://registry.yarnpkg.com/navmesh/-/navmesh-2.0.3.tgz#697507eaa353ef3caf23964e678ad9319fa0eaa4"
+  integrity sha512-v6PLQokN7JolKEUSqZ/T0uFdSSF2R+PJ5qR5OdMjqEBXX1iP0fGBdn6wau+gu+4xWlaSpe8ub01iOkEcFmg3kQ==
+  dependencies:
+    javascript-astar "github:mikewesthad/javascript-astar"
 
 negotiator@0.6.2:
   version "0.6.2"
